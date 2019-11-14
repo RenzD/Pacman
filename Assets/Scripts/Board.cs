@@ -20,7 +20,7 @@ public class Board : MonoBehaviour
         InitializePellets();
     }
 
-    private void InitializePath()
+    public void InitializePath()
     {
         //A 2D map array that represents Pacman's walkable path - 1
         path2D = new int[ROWS, COLS] {
