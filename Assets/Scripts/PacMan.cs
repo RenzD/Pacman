@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class PacMan : MonoBehaviour {
 
     private const int pacman_start_row = 6;
     private const int pacman_start_col = 12;
-    public float pacman_speed = 5.0f;
+    public float pacman_speed = 4.0f;
 
     public Board board;
     private bool movingLEFT = false;
@@ -21,6 +22,9 @@ public class PacMan : MonoBehaviour {
     public float pacman_eaten_row;
     public float pacman_eaten_col;
 
+    //FOR PINKY - 4 tiles ahead of pacman
+    public float pacman_ahead_col;
+    public float pacman_ahead_row;
 
     float pacman_move_row;
     float pacman_move_col;
@@ -31,20 +35,27 @@ public class PacMan : MonoBehaviour {
     void Start ()
     {
         transform.position = new Vector3(pacman_start_col, pacman_start_row, 0);
+
         pacman_current_row = pacman_start_row;
         pacman_current_col = pacman_start_col;
+
         pacman_move_row = pacman_start_row;
         pacman_move_col = pacman_start_col;
+
         pacman_eaten_row = pacman_start_row;
         pacman_eaten_col = pacman_start_col;
-}
+
+        pacman_ahead_row = pacman_start_row;
+        pacman_ahead_col = pacman_start_col;
+        
+    }
 
     // Update is called once per frame
     void Update()
     {
         if (eaten_pellet == 246)
         {
-            Time.timeScale = 0;
+            SceneManager.LoadScene(0);
         }
 
         CheckInput ();
@@ -54,25 +65,25 @@ public class PacMan : MonoBehaviour {
 
 	void CheckInput () {
 
-		if (Input.GetKey (KeyCode.LeftArrow)) {
+		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
             if (!movingRIGHT && !movingDOWN && !movingUP)
             {
                 movingLEFT = true;
             }
 
-		} else if (Input.GetKey(KeyCode.RightArrow)) {
+		} else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
             if (!movingLEFT && !movingDOWN && !movingUP) 
             {
                 movingRIGHT = true;
             }
 
-		} else if (Input.GetKey (KeyCode.UpArrow)) {
+		} else if (Input.GetKey (KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
             if (!movingRIGHT && !movingDOWN && !movingLEFT)
             {
                 movingUP = true;
             }
 
-		} else if (Input.GetKey (KeyCode.DownArrow)) {
+		} else if (Input.GetKey (KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
             if (!movingRIGHT && !movingLEFT && !movingUP)
             {
                 movingDOWN = true;
@@ -86,7 +97,7 @@ public class PacMan : MonoBehaviour {
         {
             Destroy(other.gameObject);
             eaten_pellet++;
-            Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
+            //Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
             board.map2D[(int)pacman_current_row, (int)pacman_eaten_col] = 0;
         }
 
@@ -94,8 +105,8 @@ public class PacMan : MonoBehaviour {
         {
             Destroy(other.gameObject);
             eaten_pellet++;
-            Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
-            Debug.Log("Eaten Big Pellets: " + board.map2D[(int)pacman_current_row, (int)pacman_eaten_col]);
+            //Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
+            //Debug.Log("Eaten Big Pellets: " + board.map2D[(int)pacman_current_row, (int)pacman_eaten_col]);
             board.map2D[(int)pacman_current_row, (int)pacman_eaten_col] = 0;
         }
     }
@@ -108,6 +119,21 @@ public class PacMan : MonoBehaviour {
             if (pacman_left >= 0 && board.path2D[(int)pacman_current_row, (int)pacman_left] != 0)
             {
                 pacman_eaten_col = pacman_left;
+                //Pinky tiles ahead
+                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                {
+                    if (pacman_eaten_col - tiles_ahead >= 0)
+                    {
+                        if (board.path2D[(int)pacman_current_row, (int)(pacman_eaten_col - tiles_ahead)] == 1 ||
+                            board.path2D[(int)pacman_current_row, (int)(pacman_eaten_col - tiles_ahead)] == 2)
+                        {
+                            pacman_ahead_col = pacman_eaten_col - tiles_ahead;
+                            pacman_ahead_row = pacman_current_row;
+                            //Debug.Log("PACMAN AHEAD: " + pacman_ahead_col + "\t" + pacman_ahead_row);
+                        }
+                    }
+                }
+
                 pacman_move_col -= pacman_speed * Time.deltaTime;
                 transform.position = new Vector3(pacman_move_col, pacman_current_row, 0.0f);
 
@@ -130,6 +156,21 @@ public class PacMan : MonoBehaviour {
             if (pacman_right < 26 && board.path2D[(int)pacman_current_row, (int)pacman_right] != 0)
             {
                 pacman_eaten_col = pacman_right;
+                //Pinky tiles ahead
+                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                {
+                    if (pacman_eaten_col + tiles_ahead < 26)
+                    {
+                        if (board.path2D[(int)pacman_current_row, (int)(pacman_eaten_col + tiles_ahead)] == 1 ||
+                            board.path2D[(int)pacman_current_row, (int)(pacman_eaten_col + tiles_ahead)] == 2)
+                        {
+                            pacman_ahead_col = pacman_eaten_col + tiles_ahead;
+                            pacman_ahead_row = pacman_current_row;
+                            //Debug.Log("PACMAN AHEAD: " + pacman_ahead_col + "\t" + pacman_ahead_row);
+                        }
+                    }
+                }
+
                 pacman_move_col += pacman_speed * Time.deltaTime;
                 transform.position = new Vector3(pacman_move_col, pacman_current_row, 0.0f);
 
@@ -151,6 +192,20 @@ public class PacMan : MonoBehaviour {
             if (pacman_up < 29 && board.path2D[(int)pacman_up, (int)pacman_current_col] != 0)
             {
                 pacman_eaten_row = pacman_up;
+                //Pinky tiles ahead
+                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                {
+                    if (pacman_eaten_row + tiles_ahead < 29)
+                    {
+                        if (board.path2D[(int)pacman_eaten_row + tiles_ahead, (int)(pacman_current_col)] == 1 ||
+                            board.path2D[(int)pacman_eaten_row + tiles_ahead, (int)(pacman_current_col)] == 2)
+                        {
+                            pacman_ahead_row = pacman_eaten_row + tiles_ahead;
+                            pacman_ahead_col = pacman_current_col;
+                            //Debug.Log("PACMAN AHEAD: " + pacman_ahead_col + "\t" + pacman_ahead_row);
+                        }
+                    }
+                }
                 pacman_move_row += pacman_speed * Time.deltaTime;
                 transform.position = new Vector3(pacman_current_col, pacman_move_row, 0.0f);
 
@@ -174,6 +229,21 @@ public class PacMan : MonoBehaviour {
             if (pacman_down >= 0 && board.path2D[(int)pacman_down, (int)pacman_current_col] != 0)
             {
                 pacman_eaten_row = pacman_down;
+                //Pinky tiles ahead
+                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                {
+                    if (pacman_eaten_row - tiles_ahead >= 0)
+                    {
+                        if (board.path2D[(int)pacman_eaten_row - tiles_ahead, (int)(pacman_current_col)] == 1 ||
+                            board.path2D[(int)pacman_eaten_row - tiles_ahead, (int)(pacman_current_col)] == 2)
+                        {
+                            pacman_ahead_row = pacman_eaten_row - tiles_ahead;
+                            pacman_ahead_col = pacman_current_col;
+                            //Debug.Log("PACMAN AHEAD: " + pacman_ahead_col + "\t" + pacman_ahead_row);
+                        }
+                    }
+                }
+
                 pacman_move_row -= pacman_speed * Time.deltaTime;
                 transform.position = new Vector3(pacman_current_col, pacman_move_row, 0.0f);
 
