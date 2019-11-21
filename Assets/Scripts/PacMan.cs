@@ -61,10 +61,12 @@ public class PacMan : MonoBehaviour {
         {
             SceneManager.LoadScene(0);
         }
+
         Chase();
         CheckInput ();
         UpdatePacman();
         UpdateOrientation();
+
     }
 
     private void Chase()
