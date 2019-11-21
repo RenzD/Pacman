@@ -55,7 +55,7 @@ public class AStarAlgorithm : MonoBehaviour
     {
 
     }
-    public void aStarSearch(Stack new_path, int[,] grid, int src_row, int src_col, int dest_row, int dest_col)
+    public void aStarSearch(Stack new_path, int[,] grid, int src_row, int src_col, int dest_row, int dest_col, ref Pair<int,int> slp2)
     {
         Pair<int, int> src = new Pair<int, int>(src_row, src_col);
 
@@ -80,7 +80,7 @@ public class AStarAlgorithm : MonoBehaviour
         if (isUnBlocked(grid, src.first, src.second) == false ||
             isUnBlocked(grid, dest.first, dest.second) == false)
         {
-            Debug.Log("Source or the destination is blocked\n");
+            //Debug.Log("Source or the destination is blocked\n");
             return;
         }
 
@@ -169,8 +169,8 @@ public class AStarAlgorithm : MonoBehaviour
                     // Set the Parent of the destination cell 
                     cellDetails[i - 1, j].parent_i = i;
                     cellDetails[i - 1, j].parent_j = j;
-                    Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, cellDetails, dest);
+                    ///Debug.Log("The destination cell is found\n");
+                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
                     foundDest = true;
                     return;
                 }
@@ -224,8 +224,8 @@ public class AStarAlgorithm : MonoBehaviour
                     // Set the Parent of the destination cell 
                     cellDetails[i + 1, j].parent_i = i;
                     cellDetails[i + 1, j].parent_j = j;
-                    Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, cellDetails, dest);
+                    //Debug.Log("The destination cell is found\n");
+                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
                     foundDest = true;
                     return;
                 }
@@ -280,8 +280,8 @@ public class AStarAlgorithm : MonoBehaviour
                     // Set the Parent of the destination cell 
                     cellDetails[i, j + 1].parent_i = i;
                     cellDetails[i, j + 1].parent_j = j;
-                    Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, cellDetails, dest);
+                    //Debug.Log("The destination cell is found\n");
+                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
                     foundDest = true;
                     return;
                 }
@@ -337,8 +337,8 @@ public class AStarAlgorithm : MonoBehaviour
                     // Set the Parent of the destination cell 
                     cellDetails[i, j - 1].parent_i = i;
                     cellDetails[i, j - 1].parent_j = j;
-                    Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, cellDetails, dest);
+                    //Debug.Log("The destination cell is found\n");
+                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
                     foundDest = true;
                     return;
                 }
@@ -427,14 +427,13 @@ public class AStarAlgorithm : MonoBehaviour
     }
 
 
-    void tracePath(Stack new_path, cell[,] cellDetails, Pair<int, int> dest)
+    void tracePath(Stack new_path, int[,] map, cell[,] cellDetails, Pair<int, int> dest, ref Pair<int, int> slp)
     {
         //Debug.Log("\nThe Path is ");
         int row = dest.first;
         int col = dest.second;
 
         Stack Path = new Stack();
-
         while (!(cellDetails[row, col].parent_i == row
                  && cellDetails[row, col].parent_j == col))
         {
@@ -452,19 +451,32 @@ public class AStarAlgorithm : MonoBehaviour
 
         //int counter = 0;
         Path.Push(new Pair<int, int>(row, col));
-
-        while (Path.Count != 0)
+        if (Path.Count >= 2)
         {
-            Pair<int, int> p = (Pair<int, int>)Path.Peek();
-            Path.Pop();
-
-            //Debug.Log("-> (" + p.first + "," + p.second + ")");
-            //counter++;
-            //Console.Write("-> (" + p.first + "," + p.second + ")");
+            while (Path.Count != 2)
+            {
+                Path.Pop();
+            }
         }
+        slp = (Pair<int, int>)Path.Peek();
+        //Debug.Log("Second Last row: " + slp.first + "\tcol" + slp.second);
 
-        //Debug.Log("Path.Count");
-        return;
+
+            //map[p.first, p.second] = 0;
+
+            /*
+            while (Path.Count != 0)
+            {
+                Pair<int, int> p = (Pair<int, int>)Path.Peek();
+                Path.Pop();
+
+                //Debug.Log("-> (" + p.first + "," + p.second + ")");
+                //counter++;
+                //Console.Write("-> (" + p.first + "," + p.second + ")");
+            }
+            */
+            //Debug.Log("Path.Count");
+            return;
     }
 
 }

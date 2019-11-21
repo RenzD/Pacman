@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 86924970}
   - component: {fileID: 86924969}
   - component: {fileID: 86924971}
+  - component: {fileID: 86924972}
   m_Layer: 0
   m_Name: Blinky
   m_TagString: Ghost
@@ -199,7 +200,7 @@ Transform:
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 516455176}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &86924971
 MonoBehaviour:
@@ -215,6 +216,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   board: {fileID: 516455175}
   pacman: {fileID: 1880952301}
+--- !u!65 &86924972
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86924968}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.5, y: 0.5, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &217274937
 GameObject:
   m_ObjectHideFlags: 0
@@ -293,7 +307,7 @@ Transform:
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 516455176}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &485713685
 PrefabInstance:
@@ -408,11 +422,11 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1880952299}
   - {fileID: 86924970}
   - {fileID: 1874762013}
   - {fileID: 2038994026}
   - {fileID: 217274939}
+  - {fileID: 1880952299}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -510,6 +524,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pacman
       objectReference: {fileID: 0}
+    - target: {fileID: 1792562961068058, guid: b08ac3ad30ff0499aa4a5042fe2f12da, type: 3}
+      propertyPath: m_TagString
+      value: Pacman
+      objectReference: {fileID: 0}
     - target: {fileID: 4521929160499986, guid: b08ac3ad30ff0499aa4a5042fe2f12da, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.29
@@ -540,7 +558,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4521929160499986, guid: b08ac3ad30ff0499aa4a5042fe2f12da, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4521929160499986, guid: b08ac3ad30ff0499aa4a5042fe2f12da, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -578,7 +596,7 @@ GameObject:
   - component: {fileID: 1874762015}
   m_Layer: 0
   m_Name: Pinky
-  m_TagString: Untagged
+  m_TagString: Ghost
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -644,7 +662,7 @@ Transform:
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 516455176}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1874762014
 MonoBehaviour:
@@ -660,24 +678,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   board: {fileID: 516455175}
   pacman: {fileID: 1880952301}
---- !u!114 &1874762015
-MonoBehaviour:
+--- !u!65 &1874762015
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874762011}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3aeed5c86264a1942a0855802b79cf54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  serializedVersion: 2
+  m_Size: {x: 0.5, y: 0.5, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1880952297 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1792562961068058, guid: b08ac3ad30ff0499aa4a5042fe2f12da,
     type: 3}
   m_PrefabInstance: {fileID: 1299025916}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &1880952298
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1880952297}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 2, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1880952299 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4521929160499986, guid: b08ac3ad30ff0499aa4a5042fe2f12da,
@@ -717,25 +749,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pacman_speed: 10
   board: {fileID: 516455175}
+  pacman_chase: 0
   pacman_current_row: 0
   pacman_current_col: 0
   pacman_eaten_row: 0
   pacman_eaten_col: 0
   pacman_ahead_col: 0
   pacman_ahead_row: 0
---- !u!65 &1880952302
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1880952297}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 0.2}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1880952303
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -830,5 +850,5 @@ Transform:
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 516455176}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

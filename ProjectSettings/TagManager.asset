@@ -7,6 +7,7 @@ TagManager:
   - Pellet
   - BigPellet
   - Ghost
+  - Pacman
   layers:
   - Default
   - TransparentFX

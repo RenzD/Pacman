@@ -17,6 +17,10 @@ public class PacMan : MonoBehaviour {
     private bool movingUP = false;
     private bool movingDOWN = false;
 
+    public bool pacman_chase = false;
+    float chaseTime = 0;
+
+
     public float pacman_current_row;
     public float pacman_current_col;
     public float pacman_eaten_row;
@@ -29,7 +33,7 @@ public class PacMan : MonoBehaviour {
     float pacman_move_row;
     float pacman_move_col;
     int eaten_pellet = 0;
-
+    int max_tiles_ahead = 4;
     Vector2 direction;
     // Use this for initialization
     void Start ()
@@ -57,13 +61,28 @@ public class PacMan : MonoBehaviour {
         {
             SceneManager.LoadScene(0);
         }
-
+        Chase();
         CheckInput ();
         UpdatePacman();
         UpdateOrientation();
     }
 
-	void CheckInput () {
+    private void Chase()
+    {
+        if (pacman_chase)
+        {
+            chaseTime += Time.deltaTime;
+            //Debug.Log(chaseTime);
+            if (chaseTime > 3)
+            {
+                Debug.Log("Chase over");
+                pacman_chase = false;
+                chaseTime = 0;
+            }
+        }
+    }
+
+    void CheckInput () {
 
 		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
             if (!movingRIGHT && !movingDOWN && !movingUP)
@@ -104,10 +123,18 @@ public class PacMan : MonoBehaviour {
         if (other.tag == "BigPellet")
         {
             Destroy(other.gameObject);
+            Debug.Log("POWER MODE");
+            pacman_chase = true;
             eaten_pellet++;
             //Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
             //Debug.Log("Eaten Big Pellets: " + board.map2D[(int)pacman_current_row, (int)pacman_eaten_col]);
             board.map2D[(int)pacman_current_row, (int)pacman_eaten_col] = 0;
+        }
+
+        if (other.tag == "Ghost")
+        {
+            if (!pacman_chase)
+                SceneManager.LoadScene(0); 
         }
     }
 
@@ -120,7 +147,7 @@ public class PacMan : MonoBehaviour {
             {
                 pacman_eaten_col = pacman_left;
                 //Pinky tiles ahead
-                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
                 {
                     if (pacman_eaten_col - tiles_ahead >= 0)
                     {
@@ -157,7 +184,7 @@ public class PacMan : MonoBehaviour {
             {
                 pacman_eaten_col = pacman_right;
                 //Pinky tiles ahead
-                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
                 {
                     if (pacman_eaten_col + tiles_ahead < 26)
                     {
@@ -193,7 +220,7 @@ public class PacMan : MonoBehaviour {
             {
                 pacman_eaten_row = pacman_up;
                 //Pinky tiles ahead
-                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
                 {
                     if (pacman_eaten_row + tiles_ahead < 29)
                     {
@@ -230,7 +257,7 @@ public class PacMan : MonoBehaviour {
             {
                 pacman_eaten_row = pacman_down;
                 //Pinky tiles ahead
-                for (int tiles_ahead = 0; tiles_ahead <= 5; tiles_ahead++)
+                for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
                 {
                     if (pacman_eaten_row - tiles_ahead >= 0)
                     {

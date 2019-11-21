@@ -9,10 +9,11 @@ public class Blinky : MonoBehaviour
 {
     int blinky_start_row = 24;
     int blinky_start_col = 0;
+
     float blinky_current_row = 0;
     float blinky_current_col = 0;
-    float blinky_move_row;
-    float blinky_move_col;
+    float blinky_move_row; // For blinky update
+    float blinky_move_col; // For blinky update
     float blinky_speed = 8.0f;
 
     bool movingUP = false;
@@ -23,16 +24,22 @@ public class Blinky : MonoBehaviour
     private AStarAlgorithm astar_gen;
     public Board board;
     public PacMan pacman;
-    //private int[,] path2D;
+
     private const int ROWS = 29;
     private const int COLS = 26;
+
     public int[,] path2D;
 
     Stack blinky_path = new Stack();
-
-    Pair<int, int> pair;
     Random rand;
-   
+    Pair<int, int> pair;
+    Pair<int, int> second_last_pos;
+    Pair<int, int> second_last_pos_temp;
+    Pair<int, int> second_last_pos_temp2;
+
+    int blinky_path_found_moves;
+    int move_counter;
+    int blinky_moves = 3; //every x moves blinky a*
 
     // Start is called before the first frame update
     void Start()
@@ -69,6 +76,7 @@ public class Blinky : MonoBehaviour
             { 1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1 }
         };
 
+        //Blinky start pos
         transform.position = new Vector3(blinky_start_col, blinky_start_row, 0.0f);
 
         blinky_move_col = blinky_start_col;
@@ -77,49 +85,81 @@ public class Blinky : MonoBehaviour
         blinky_current_row = blinky_start_row;
         blinky_current_col = blinky_start_col;
 
-        //temp start destination
-        int dest_row = 0;
-        int dest_col = 0;
         astar_gen = new AStarAlgorithm();
-        astar_gen.aStarSearch(blinky_path, path2D, blinky_start_row, blinky_start_col, dest_row, dest_col);
+        second_last_pos = new Pair<int, int>(0, 0);
+        second_last_pos_temp2 = new Pair<int, int>(0, 0);
+        second_last_pos_temp = new Pair<int, int>(0, 0);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        //blinky_new_posX += blinky_speed * Time.deltaTime;
-        //blinky.transform.position = new Vector3(blinky_new_posX, blinky_start_row, 0.0f);
-        if (blinky_path.Count != 0 && !movingUP && !movingDOWN
+        if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && blinky_path.Count == 0)
+        {
+            if (blinky_path_found_moves < blinky_moves - 1)
+            {
+                second_last_pos_temp = second_last_pos;
+            } else
+            {
+                second_last_pos_temp = second_last_pos_temp2;
+            }
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            // Find blinky's path using A*
+            //Debug.Log((int)pacman.pacman_current_row + "\t" + (int)pacman.pacman_current_col);
+            astar_gen.aStarSearch(blinky_path, path2D, (int)blinky_current_row, (int)blinky_current_col, (int)pacman.pacman_current_row, (int)pacman.pacman_current_col, ref second_last_pos);
+            // Found moves
+            blinky_path_found_moves = blinky_path.Count;
+            // Set the blocked position back to movable in the 2D map array
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
+            // Set blinky second last position to 0
+
+            move_counter = 0; // Blinky move counter
+        }
+
+        if (move_counter == blinky_moves)
+        {
+            while (blinky_path.Count != 0)
+            {
+                blinky_path.Pop();
+            }
+        }
+        
+        if (blinky_path.Count != 0 && move_counter != blinky_moves
+                                   && !movingUP && !movingDOWN
                                    && !movingLEFT && !movingRIGHT)
         {
+            move_counter++;
             pair = (Pair<int, int>)blinky_path.Peek();
             blinky_path.Pop();
-            //Debug.Log("Popped");
+
+            //If the found path is greater than every time blinky checks for a*,
+            //set the his second last position to be blocked to his second move
+            if (move_counter == 2 && blinky_path_found_moves > blinky_moves)
+            {
+                second_last_pos_temp2 = new Pair<int, int>(pair.first, pair.second);
+            }
+
+            //Based on the next cell, move pinky towards that direction
             if (pair.first == blinky_current_row + 1)
             {
-                //move blinky row + 1
-                //Debug.Log("Moved UP");
                 movingUP = true;
             }
             else if (pair.first == blinky_current_row - 1)
             {
-                //move blinky row - 1
-                //Debug.Log("Moved DOWN");
                 movingDOWN = true;
             }
             else if (pair.second == blinky_current_col + 1)
             {
-                //move blinky col + 1
-                //Debug.Log("Moved RIGHT");
                 movingRIGHT = true;
             }
             else if (pair.second == blinky_current_col - 1)
             {
-                //move blinky col - 1
-                //Debug.Log("Moved LEFT");
                 movingLEFT = true;
             }
         }
+
+        // Movement update
         if (movingUP)
         {
             blinky_move_row += blinky_speed * Time.deltaTime;
@@ -172,13 +212,6 @@ public class Blinky : MonoBehaviour
                 blinky_move_col = pair.second;
                 movingRIGHT = false;
             }
-        }
-
-        
-        if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && blinky_path.Count == 0)
-        {
-            //Debug.Log("ASTAR: ROW: " + blinky_current_row + " COL: " + blinky_current_col);
-            astar_gen.aStarSearch(blinky_path, path2D, (int)blinky_current_row, (int)blinky_current_col, (int)pacman.pacman_current_row, (int)pacman.pacman_current_col);
         }
     }
 }
