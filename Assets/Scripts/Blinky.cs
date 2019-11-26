@@ -35,7 +35,6 @@ public class Blinky : MonoBehaviour
     Pair<int, int> pair;
     Pair<int, int> second_last_pos;
     Pair<int, int> second_last_pos_temp;
-    Pair<int, int> second_last_pos_temp2;
 
     int blinky_path_found_moves;
     int move_counter;
@@ -87,7 +86,6 @@ public class Blinky : MonoBehaviour
 
         astar_gen = new AStarAlgorithm();
         second_last_pos = new Pair<int, int>(0, 0);
-        second_last_pos_temp2 = new Pair<int, int>(0, 0);
         second_last_pos_temp = new Pair<int, int>(0, 0);
 
     }
@@ -97,13 +95,8 @@ public class Blinky : MonoBehaviour
     {
         if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && blinky_path.Count == 0)
         {
-            if (blinky_path_found_moves < blinky_moves - 1)
-            {
-                second_last_pos_temp = second_last_pos;
-            } else
-            {
-                second_last_pos_temp = second_last_pos_temp2;
-            }
+            
+            second_last_pos_temp = second_last_pos;
             path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
             // Find blinky's path using A*
             //Debug.Log((int)pacman.pacman_current_row + "\t" + (int)pacman.pacman_current_col);
@@ -132,13 +125,6 @@ public class Blinky : MonoBehaviour
             move_counter++;
             pair = (Pair<int, int>)blinky_path.Peek();
             blinky_path.Pop();
-
-            //If the found path is greater than every time blinky checks for a*,
-            //set the his second last position to be blocked to his second move
-            if (move_counter == 2 && blinky_path_found_moves > blinky_moves)
-            {
-                second_last_pos_temp2 = new Pair<int, int>(pair.first, pair.second);
-            }
 
             //Based on the next cell, move pinky towards that direction
             if (pair.first == blinky_current_row + 1)

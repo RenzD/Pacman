@@ -135,8 +135,8 @@ public class PacMan : MonoBehaviour {
 
         if (other.tag == "Ghost")
         {
-            if (!pacman_chase)
-                SceneManager.LoadScene(0); 
+            //if (!pacman_chase)
+                //SceneManager.LoadScene(0); 
         }
     }
 

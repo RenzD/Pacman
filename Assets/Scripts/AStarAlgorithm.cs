@@ -451,13 +451,7 @@ public class AStarAlgorithm : MonoBehaviour
 
         //int counter = 0;
         Path.Push(new Pair<int, int>(row, col));
-        if (Path.Count >= 2)
-        {
-            while (Path.Count != 2)
-            {
-                Path.Pop();
-            }
-        }
+
         slp = (Pair<int, int>)Path.Peek();
         //Debug.Log("Second Last row: " + slp.first + "\tcol" + slp.second);
 

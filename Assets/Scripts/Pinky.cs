@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Pinky : MonoBehaviour
 {
+    public GameObject clyde;
     int pinky_start_row = 15;
     int pinky_start_col = 13;
     float pinky_current_row = 0;
@@ -34,12 +35,11 @@ public class Pinky : MonoBehaviour
     Random rand;
     Pair<int, int> pair;
     Pair<int, int> second_last_pos;
-    Pair<int, int> second_last_pos_temp2;
     Pair<int, int> second_last_pos_temp;
 
     int pinky_path_count_temp;
     int move_counter;
-    int pinky_moves = 3; //every x moves pinky a*
+    int pinky_moves = 1; //every x moves pinky a*
 
     // Start is called before the first frame update
     void Start()
@@ -86,7 +86,6 @@ public class Pinky : MonoBehaviour
 
         astar_gen = new AStarAlgorithm();
         second_last_pos = new Pair<int, int>(0,0);
-        second_last_pos_temp2 = new Pair<int, int>(0, 0);
         second_last_pos_temp = new Pair<int, int>(0, 0);
     }
 
@@ -125,7 +124,7 @@ public class Pinky : MonoBehaviour
             // Return to start
             if (jailTime == 0)
             {
-                second_last_pos_temp = pinky_path_count_temp < pinky_moves - 1 ? second_last_pos : second_last_pos_temp2;
+                second_last_pos_temp = second_last_pos;
                 Astar(pinky_start_row, pinky_start_col);
                 pinky_speed = 10f;
             }
@@ -137,7 +136,7 @@ public class Pinky : MonoBehaviour
                 // Frightened
                 if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
                 {
-                    second_last_pos_temp = pinky_path_count_temp < pinky_moves ? second_last_pos : second_last_pos_temp2;
+                    //second_last_pos_temp = pinky_path_count_temp < pinky_moves ? second_last_pos : second_last_pos_temp2;
                     Astar((int)pinky_corner_row, (int)pinky_corner_col);
                 }
                 // Slow down
@@ -148,7 +147,8 @@ public class Pinky : MonoBehaviour
                 // Chase
                 if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && pinky_path.Count == 0)
                 {
-                    second_last_pos_temp = pinky_path_count_temp < pinky_moves ? second_last_pos : second_last_pos_temp2;
+                    second_last_pos_temp = second_last_pos;
+                    clyde.transform.position = new Vector3(second_last_pos_temp.second, second_last_pos_temp.first, 0.0f);
                     path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
                     Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
                 } else
@@ -174,11 +174,6 @@ public class Pinky : MonoBehaviour
             move_counter++;
             pair = (Pair<int, int>)pinky_path.Peek();
             pinky_path.Pop();
-
-            if (move_counter == 1 && pinky_path_count_temp > pinky_moves)
-            {
-                second_last_pos_temp2 = new Pair<int, int>(pair.first, pair.second);
-            }
 
             if (pair.first == pinky_current_row + 1)
             {
