@@ -12,6 +12,7 @@ public class PacMan : MonoBehaviour {
     public float pacman_speed = 4.0f;
 
     public Board board;
+
     private bool movingLEFT = false;
     private bool movingRIGHT = false;
     private bool movingUP = false;
@@ -29,6 +30,8 @@ public class PacMan : MonoBehaviour {
     //FOR PINKY - 4 tiles ahead of pacman
     public float pacman_ahead_col;
     public float pacman_ahead_row;
+    //FOR INKY - BASED ON BLINKY'S POSITION
+
 
     float pacman_move_row;
     float pacman_move_col;
@@ -66,7 +69,6 @@ public class PacMan : MonoBehaviour {
         CheckInput ();
         UpdatePacman();
         UpdateOrientation();
-
     }
 
     private void Chase()

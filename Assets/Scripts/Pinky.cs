@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Pinky : MonoBehaviour
 {
-    public GameObject clyde;
     int pinky_start_row = 15;
     int pinky_start_col = 13;
     float pinky_current_row = 0;
@@ -100,6 +99,13 @@ public class Pinky : MonoBehaviour
             }
         }
     }
+    private void Astar(int dest_row, int dest_col)
+    {
+        astar_gen.aStarSearch(pinky_path, path2D, (int)pinky_current_row, (int)pinky_current_col, dest_row, dest_col, ref second_last_pos);
+        pinky_path_count_temp = pinky_path.Count;
+        path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
+        move_counter = 0;
+    }
 
     // Update is called once per frame
     void Update()
@@ -115,7 +121,6 @@ public class Pinky : MonoBehaviour
                 jailTime = 0.0f;
                 Debug.Log("Jail Time over");
             }
-            
         }
 
         // DECISION TREE
@@ -141,17 +146,18 @@ public class Pinky : MonoBehaviour
                 }
                 // Slow down
                 pinky_speed = 4.0f;
-            } else
+            }
+            else
             {
                 // If Pacman is near
                 // Chase
                 if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && pinky_path.Count == 0)
                 {
                     second_last_pos_temp = second_last_pos;
-                    clyde.transform.position = new Vector3(second_last_pos_temp.second, second_last_pos_temp.first, 0.0f);
                     path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
                     Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
-                } else
+                }
+                else
                 {
                     // Wander
                 }
@@ -167,7 +173,7 @@ public class Pinky : MonoBehaviour
             }
         }
 
-        if (pinky_path.Count != 0 && move_counter != pinky_moves 
+        if (pinky_path.Count != 0 && move_counter != pinky_moves
                                   && !movingUP && !movingDOWN
                                   && !movingLEFT && !movingRIGHT)
         {
@@ -196,6 +202,11 @@ public class Pinky : MonoBehaviour
                 movingLEFT = true;
             }
         }
+        MoveGhost();
+    }
+
+    private void MoveGhost()
+    {
         if (movingUP)
         {
             pinky_move_row += pinky_speed * Time.deltaTime;
@@ -251,13 +262,5 @@ public class Pinky : MonoBehaviour
                 movingRIGHT = false;
             }
         }
-    }
-
-    private void Astar(int dest_row, int dest_col)
-    {
-        astar_gen.aStarSearch(pinky_path, path2D, (int)pinky_current_row, (int)pinky_current_col, dest_row, dest_col, ref second_last_pos);
-        pinky_path_count_temp = pinky_path.Count;
-        path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
-        move_counter = 0;
     }
 }

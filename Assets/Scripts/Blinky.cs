@@ -10,8 +10,8 @@ public class Blinky : MonoBehaviour
     int blinky_start_row = 24;
     int blinky_start_col = 0;
 
-    float blinky_current_row = 0;
-    float blinky_current_col = 0;
+    public float blinky_current_row = 0;
+    public float blinky_current_col = 0;
     float blinky_move_row; // For blinky update
     float blinky_move_col; // For blinky update
     float blinky_speed = 8.0f;
@@ -38,7 +38,7 @@ public class Blinky : MonoBehaviour
 
     int blinky_path_found_moves;
     int move_counter;
-    int blinky_moves = 3; //every x moves blinky a*
+    int blinky_moves = 1; //every x moves blinky a*
 
     // Start is called before the first frame update
     void Start()
@@ -110,6 +110,8 @@ public class Blinky : MonoBehaviour
             move_counter = 0; // Blinky move counter
         }
 
+        // Every 1 cell moved, blinky uses A* to check for a new path
+        // So, clear the paths
         if (move_counter == blinky_moves)
         {
             while (blinky_path.Count != 0)

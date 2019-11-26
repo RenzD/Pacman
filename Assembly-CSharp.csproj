@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\AStarAlgorithm.cs" />
     <Compile Include="Assets\Scripts\Blinky.cs" />
     <Compile Include="Assets\Scripts\Board.cs" />
+    <Compile Include="Assets\Scripts\Inky.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\PacMan.cs" />
     <Compile Include="Assets\Scripts\Pair.cs" />
