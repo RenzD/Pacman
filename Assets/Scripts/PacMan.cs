@@ -18,26 +18,38 @@ public class PacMan : MonoBehaviour {
     private bool movingUP = false;
     private bool movingDOWN = false;
 
+    [NonSerialized]
     public bool pacman_chase = false;
     float chaseTime = 0;
 
-
+    [NonSerialized]
     public float pacman_current_row;
+    [NonSerialized]
     public float pacman_current_col;
+    [NonSerialized]
     public float pacman_eaten_row;
+    [NonSerialized]
     public float pacman_eaten_col;
 
     //FOR PINKY - 4 tiles ahead of pacman
+    [NonSerialized]
     public float pacman_ahead_col;
+    [NonSerialized]
     public float pacman_ahead_row;
     //FOR INKY - BASED ON BLINKY'S POSITION
+
 
 
     float pacman_move_row;
     float pacman_move_col;
     int eaten_pellet = 0;
     int max_tiles_ahead = 4;
-    Vector2 direction;
+
+    public List<int> directions = new List<int>(); // 1:North 2:East 3:South 4:West
+
+    [NonSerialized]
+    public int sequence = 200;
+
     // Use this for initialization
     void Start ()
     {
@@ -54,7 +66,7 @@ public class PacMan : MonoBehaviour {
 
         pacman_ahead_row = pacman_start_row;
         pacman_ahead_col = pacman_start_col;
-        
+
     }
 
     // Update is called once per frame
@@ -67,7 +79,7 @@ public class PacMan : MonoBehaviour {
 
         Chase();
         CheckInput ();
-        UpdatePacman();
+        MovePacman();
         UpdateOrientation();
     }
 
@@ -142,7 +154,7 @@ public class PacMan : MonoBehaviour {
         }
     }
 
-    void UpdatePacman()
+    void MovePacman()
     {
         if (movingLEFT)
         {
@@ -175,6 +187,14 @@ public class PacMan : MonoBehaviour {
                     pacman_current_col = pacman_left;
                     pacman_move_col = pacman_left;
                     movingLEFT = false;
+                    //Left++;
+                    //Debug.Log("Left: " + Left);
+
+                    if (directions.Count >= sequence)
+                    {
+                        directions.RemoveAt(0);
+                    } 
+                    directions.Add(4);
                 }
             } else
             {
@@ -211,6 +231,14 @@ public class PacMan : MonoBehaviour {
                     pacman_current_col = pacman_right;
                     pacman_move_col = pacman_right;
                     movingRIGHT = false;
+                    //Right++;
+                    //Debug.Log("Right: " + Right);
+
+                    if (directions.Count >= sequence)
+                    {
+                        directions.RemoveAt(0);
+                    }
+                    directions.Add(2);
                 }
             } else
             {
@@ -247,6 +275,14 @@ public class PacMan : MonoBehaviour {
                     pacman_current_row = pacman_up;
                     pacman_move_row = pacman_up;
                     movingUP = false;
+                    //Up++;
+                    //Debug.Log("Up: " + Up);
+
+                    if (directions.Count >= sequence)
+                    {
+                        directions.RemoveAt(0);
+                    }
+                    directions.Add(1);
                 }
             }
             else
@@ -285,6 +321,14 @@ public class PacMan : MonoBehaviour {
                     pacman_current_row = pacman_down;
                     pacman_move_row = pacman_down;
                     movingDOWN = false;
+                    //Down++;
+                    //Debug.Log("Down: " + Down);
+
+                    if (directions.Count >= sequence)
+                    {
+                        directions.RemoveAt(0);
+                    }
+                    directions.Add(3);
                 }
             }
             else

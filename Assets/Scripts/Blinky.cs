@@ -10,7 +10,9 @@ public class Blinky : MonoBehaviour
     int blinky_start_row = 24;
     int blinky_start_col = 0;
 
+    [NonSerialized]
     public float blinky_current_row = 0;
+    [NonSerialized]
     public float blinky_current_col = 0;
     float blinky_move_row; // For blinky update
     float blinky_move_col; // For blinky update

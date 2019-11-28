@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Inky : MonoBehaviour
 {
     int inky_start_row = 15;
@@ -15,8 +16,10 @@ public class Inky : MonoBehaviour
     float inky_corner_col = 25.0f;
     float inky_speed = 8.0f;
 
+    int prediction = 0;
     float inky_dest_row;
     float inky_dest_col;
+
 
     bool movingUP = false;
     bool movingDOWN = false;
@@ -28,6 +31,7 @@ public class Inky : MonoBehaviour
     public Board board;
     public PacMan pacman;
     public Blinky blinky;
+    public GameObject inky_ghost;
 
     private const int ROWS = 29;
     private const int COLS = 26;
@@ -35,7 +39,6 @@ public class Inky : MonoBehaviour
     public int[,] path2D;
 
     Stack inky_path = new Stack();
-    //Random rand;
 
     Pair<int, int> pair;
     Pair<int, int> second_last_pos;
@@ -126,7 +129,12 @@ public class Inky : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GetInkyAmbushPoint();
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            //NGramPrediction();
+            //SetInkyAmbushPoint();
+        }
+        //GetInkyAmbushPoint();
 
         switch (state)
         {
@@ -146,28 +154,312 @@ public class Inky : MonoBehaviour
                 Debug.Log("Unknown state");
                 break;
         }
-
         MoveGhost();
     }
 
-    private void GetInkyAmbushPoint()
+    private void ThirdDirectionCounter(int i, ref int dir_counter1, ref int dir_counter2, ref int dir_counter3, int dir1, int dir2, int dir3, int dir4)
     {
-        if (pacman.pacman_current_row > blinky.blinky_current_row &&
-            pacman.pacman_current_col > blinky.blinky_current_col)
+        if (pacman.directions[i] == dir1 && pacman.directions[i + 1] == dir1)
         {
-            // top right
-        } else if (pacman.pacman_current_row < blinky.blinky_current_row &&
-                   pacman.pacman_current_col < blinky.blinky_current_col)
-        {
-            // bottom left
-        } else if (pacman.pacman_current_row > blinky.blinky_current_row &&
-                   pacman.pacman_current_col < blinky.blinky_current_col)
-        {
-            // top left
-        } else if (pacman.pacman_current_row < blinky.blinky_current_row &&
-                   pacman.pacman_current_col > blinky.blinky_current_col){
-            //bottom right
+            if (pacman.directions[i + 2] == dir2)
+            {
+                dir_counter1++;
+            }
+            else if (pacman.directions[i + 2] == dir3)
+            {
+                dir_counter2++;
+            }
+            else if (pacman.directions[i + 2] == dir4)
+            {
+                dir_counter3++;
+            }
         }
+    }
+
+    private void NGramPrediction()
+    {
+        // Get Pacman's last positions - pacman.directions
+        // Get tri-gram patterns probability - Predict sides/backward direction pacman will go
+
+        // Counters
+        //Only do something after pacman takes 15 steps
+        //Debug.Log("Pressed");
+        //Debug.Log(pacman.directions.Count);
+
+        if (pacman.directions.Count >= 20)
+        {
+            // Direction Counters for the third step
+            int NNW = 0, NNE = 0, NNS = 0;
+            int EEN = 0, EES = 0, EEW = 0;
+            int SSN = 0, SSE = 0, SSW = 0;
+            int WWN = 0, WWE = 0, WWS = 0;
+
+            //Scan through the list of pacman's last X directions (pacman.sequence)
+            //Only scan through to 13 to take account of bigram + 1
+            for (int i = 0; i < pacman.directions.Count - 2; i++) {
+                //NN
+                ThirdDirectionCounter(i, ref NNE, ref NNS, ref NNW, 1, 2, 3, 4);
+                /**
+                if (pacman.directions[i] == 1 && pacman.directions[i + 1] == 1) 
+                {
+
+                    if (pacman.directions[i+2] == 2) 
+                    {
+                        NNE++;
+                    } 
+                    else if (pacman.directions[i + 2] == 3)
+                    {
+                        NNS++;
+                    }
+                    else if (pacman.directions[i + 2] == 4)
+                    {
+                        NNW++;
+                    }
+                }
+                */
+                //EE
+                ThirdDirectionCounter(i, ref EEN, ref EES, ref EEW, 2, 1, 3, 4);
+                /**
+                if (pacman.directions[i] == 2 && pacman.directions[i + 1] == 2)
+                {
+                    if (pacman.directions[i + 2] == 1)
+                    {
+                        EEN++;
+                    }
+                    else if (pacman.directions[i + 2] == 3)
+                    {
+                        EES++;
+                    }
+                    else if (pacman.directions[i + 2] == 4)
+                    {
+                        EEW++;
+                    }
+                }
+                */
+                //SS
+                ThirdDirectionCounter(i, ref SSN, ref SSE, ref SSW, 3, 1, 2, 4);
+                /**
+                if (pacman.directions[i] == 3 && pacman.directions[i + 1] == 3)
+                {
+                    if (pacman.directions[i + 2] == 1)
+                    {
+                        SSN++;
+                    }
+                    else if (pacman.directions[i + 2] == 2)
+                    {
+                        SSE++;
+                    }
+                    else if (pacman.directions[i + 2] == 4)
+                    {
+                        SSW++;
+                    }
+                }
+                */
+                //WW
+                ThirdDirectionCounter(i, ref WWN, ref WWE, ref WWS, 4, 1, 2, 3);
+                /**
+                if (pacman.directions[i] == 4 && pacman.directions[i + 1] == 4)
+                {
+                    if (pacman.directions[i + 2] == 1)
+                    {
+                        WWN++;
+                    }
+                    else if (pacman.directions[i + 2] == 2)
+                    {
+                        WWE++;
+                    }
+                    else if (pacman.directions[i + 2] == 3)
+                    {
+                        WWS++;
+                    }
+                }
+                */
+            }
+            Debug.Log("North - E: " + NNE + "\tS: " + NNS + "\tW: " + NNW);
+            Debug.Log("East - N: " + EEN + "\t\tS: " + EES + "\tW: " + EEW);
+            Debug.Log("South - N: " + SSN + "\tE: " + SSE + "\tW: " + SSW);
+            Debug.Log("West - N: " + WWN + "\tE: " + WWE + "\tS: " + WWS);
+
+            //int prediction = 0;
+            //Predict the next move based on the last 2
+            if (pacman.directions[pacman.directions.Count - 1] == 1 &&
+                pacman.directions[pacman.directions.Count - 2] == 1)
+            {
+                //Predict pacman's movement
+                PredictDirection(NNW, NNE, NNS, 2, 3, 4);
+            }
+
+            else if (pacman.directions[pacman.directions.Count - 1] == 2 &&
+                     pacman.directions[pacman.directions.Count - 2] == 2)
+            {
+                //Predict pacman's movement
+                PredictDirection(EEW, EEN, EES, 1, 3, 4);
+            }
+            else if (pacman.directions[pacman.directions.Count - 1] == 3 &&
+                     pacman.directions[pacman.directions.Count - 2] == 3)
+            {
+                //Predict pacman's movement
+                PredictDirection(SSW, SSN, SSE, 1, 2, 4);
+            }
+            else if (pacman.directions[pacman.directions.Count - 1] == 4 &&
+                     pacman.directions[pacman.directions.Count - 2] == 4)
+            {
+                //Predict pacman's movement
+                PredictDirection(WWS, WWN, WWE, 1, 2, 3);
+            }
+        }
+
+    }
+
+    private void PredictDirection(int A, int B, int C, int dir1, int dir2, int dir3)
+    {
+        //Predict pacman's movement
+        if (B > C && B > A)
+        {
+            prediction = dir1;
+            Debug.Log("I predict you will go " + dir1);
+        }
+        else if (C > B && C > A)
+        {
+            prediction = dir2;
+            Debug.Log("I predict you will go " + dir2);
+        }
+        else if (A > B && A > C)
+        {
+            prediction = dir3;
+            Debug.Log("I predict you will go" + dir3);
+        }
+        else if (B == C && B > A)
+        {
+            int r = UnityEngine.Random.Range(0, 2);
+            prediction = r == 0 ? dir1 : dir2;
+            Debug.Log("PREDICTION: " + prediction);
+            Debug.Log("I predict you will go either " + dir1 + " OR " + dir2);
+        }
+        else if (B == A && B > C)
+        {
+            int r = UnityEngine.Random.Range(0, 2);
+            prediction = r == 0 ? dir1 : dir3;
+            Debug.Log("PREDICTION: " + prediction);
+            Debug.Log("I predict you will go either " + dir1 + " OR " + dir3);
+        }
+        else if (A == C && A > B)
+        {
+            int r = UnityEngine.Random.Range(0, 2);
+            prediction = r == 0 ? dir2 : dir3;
+            //Debug.Log("PREDICTION: " + prediction);
+            Debug.Log("I predict you will go either " + dir2 + " OR " + dir3);
+        }
+        else if (A == C && C == B)
+        {
+            int r = UnityEngine.Random.Range(0, 3);
+            if (r == 0)
+            {
+                prediction = dir1;
+            } 
+            else if (r == 1)
+            {
+                prediction = dir2;
+            }
+            else if (r == 2)
+            {
+                prediction = dir3;
+            }
+            Debug.Log("I predict you will go either " + dir1 + " OR " + dir2 + " OR " + dir3);
+        }
+        SetInkyAmbushPoint();
+    }
+
+    private void SetInkyAmbushPoint()
+    {
+        if (prediction != 0)
+        {
+            int max_tiles_ahead = 10;
+            if (prediction == 1)
+            {
+                SetAmbushPointNorth(max_tiles_ahead);
+            } 
+            else if (prediction == 2)
+            {
+                SetAmbushPointEast(max_tiles_ahead);
+            } 
+            else if (prediction == 3)
+            {
+                SetAmbushPointSouth(max_tiles_ahead);
+            }
+            else if (prediction == 4)
+            {
+                SetAmbushPointWest(max_tiles_ahead);
+            }
+        }
+    }
+
+    private void SetAmbushPointWest(int max_tiles_ahead)
+    {
+        for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
+        {
+            if (pacman.pacman_eaten_col - tiles_ahead >= 0)
+            {
+                if (board.path2D[(int)pacman.pacman_current_row, (int)(pacman.pacman_eaten_col - tiles_ahead)] == 1 ||
+                    board.path2D[(int)pacman.pacman_current_row, (int)(pacman.pacman_eaten_col - tiles_ahead)] == 2)
+                {
+                    inky_dest_col = pacman.pacman_eaten_col - tiles_ahead;
+                    inky_dest_row = pacman.pacman_current_row;
+                }
+            }
+        }
+        Debug.Log("PACMAN WEST: " + inky_dest_col + "\t" + inky_dest_row);
+    }
+
+    private void SetAmbushPointSouth(int max_tiles_ahead)
+    {
+        for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
+        {
+            if (pacman.pacman_eaten_row - tiles_ahead >= 0)
+            {
+                if (board.path2D[(int)pacman.pacman_eaten_row - tiles_ahead, (int)(pacman.pacman_current_col)] == 1 ||
+                    board.path2D[(int)pacman.pacman_eaten_row - tiles_ahead, (int)(pacman.pacman_current_col)] == 2)
+                {
+                    inky_dest_row = pacman.pacman_eaten_row - tiles_ahead;
+                    inky_dest_col = pacman.pacman_current_col;
+                }
+            }
+        }
+        Debug.Log("PACMAN SOUTH: " + inky_dest_col + "\t" + inky_dest_row);
+    }
+
+    private void SetAmbushPointEast(int max_tiles_ahead)
+    {
+        for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
+        {
+            if (pacman.pacman_eaten_col + tiles_ahead < 26)
+            {
+                if (board.path2D[(int)pacman.pacman_current_row, (int)(pacman.pacman_eaten_col + tiles_ahead)] == 1 ||
+                    board.path2D[(int)pacman.pacman_current_row, (int)(pacman.pacman_eaten_col + tiles_ahead)] == 2)
+                {
+                    inky_dest_col = pacman.pacman_eaten_col + tiles_ahead;
+                    inky_dest_row = pacman.pacman_current_row;
+                }
+            }
+        }
+        Debug.Log("PACMAN EAST: " + inky_dest_col + "\t" + inky_dest_row);
+    }
+
+    private void SetAmbushPointNorth(int max_tiles_ahead)
+    {
+        for (int tiles_ahead = 0; tiles_ahead <= max_tiles_ahead; tiles_ahead++)
+        {
+            if (pacman.pacman_eaten_row + tiles_ahead < 29)
+            {
+                if (board.path2D[(int)pacman.pacman_eaten_row + tiles_ahead, (int)(pacman.pacman_current_col)] == 1 ||
+                    board.path2D[(int)pacman.pacman_eaten_row + tiles_ahead, (int)(pacman.pacman_current_col)] == 2)
+                {
+                    inky_dest_row = pacman.pacman_eaten_row + tiles_ahead;
+                    inky_dest_col = pacman.pacman_current_col;
+                }
+            }
+        }
+        Debug.Log("PACMAN NORTH: " + inky_dest_col + "\t" + inky_dest_row);
     }
 
     private void Frightened()
@@ -200,7 +492,19 @@ public class Inky : MonoBehaviour
             {
                 second_last_pos_temp = second_last_pos;
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
-                Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
+
+                //if prediction != 0 
+                //if (prediction = 1 2 3 4 then go that way
+                
+                if (pacman.directions.Count >= 20) { 
+                    NGramPrediction();
+                    inky_ghost.transform.position = new Vector3(inky_dest_col, inky_dest_row, 0.0f);
+                    Astar((int)inky_dest_row, (int)inky_dest_col);
+                } else
+                {
+                    Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
+                }
+                
             }
             inky_speed = 8.0f;
         }
