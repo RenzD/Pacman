@@ -17,6 +17,7 @@ public class Inky : MonoBehaviour
     float inky_speed = 8.0f;
 
     int prediction = 0;
+    int antiSwitch = 0;
     float inky_dest_row;
     float inky_dest_col;
 
@@ -331,39 +332,54 @@ public class Inky : MonoBehaviour
         }
         else if (B == C && B > A)
         {
-            int r = UnityEngine.Random.Range(0, 2);
-            prediction = r == 0 ? dir1 : dir2;
+            if (prediction != dir1 && prediction != dir2)
+            {
+                int r = UnityEngine.Random.Range(0, 2);
+                prediction = r == 0 ? dir1 : dir2;
+            }
             Debug.Log("PREDICTION: " + prediction);
             Debug.Log("I predict you will go either " + dir1 + " OR " + dir2);
+
         }
         else if (B == A && B > C)
         {
-            int r = UnityEngine.Random.Range(0, 2);
-            prediction = r == 0 ? dir1 : dir3;
+            if (prediction != dir1 && prediction != dir3)
+            {
+                int r = UnityEngine.Random.Range(0, 2);
+                prediction = r == 0 ? dir1 : dir3;
+               
+            }
             Debug.Log("PREDICTION: " + prediction);
             Debug.Log("I predict you will go either " + dir1 + " OR " + dir3);
         }
         else if (A == C && A > B)
         {
-            int r = UnityEngine.Random.Range(0, 2);
-            prediction = r == 0 ? dir2 : dir3;
-            //Debug.Log("PREDICTION: " + prediction);
+            if (prediction != dir2 && prediction != dir3)
+            {
+                int r = UnityEngine.Random.Range(0, 2);
+                prediction = r == 0 ? dir2 : dir3;
+                
+            }
+            Debug.Log("PREDICTION: " + prediction);
             Debug.Log("I predict you will go either " + dir2 + " OR " + dir3);
         }
         else if (A == C && C == B)
         {
-            int r = UnityEngine.Random.Range(0, 3);
-            if (r == 0)
+            if (prediction != dir1 && prediction != dir2 && prediction != dir3)
             {
-                prediction = dir1;
-            } 
-            else if (r == 1)
-            {
-                prediction = dir2;
-            }
-            else if (r == 2)
-            {
-                prediction = dir3;
+                int r = UnityEngine.Random.Range(0, 3);
+                if (r == 0)
+                {
+                    prediction = dir1;
+                }
+                else if (r == 1)
+                {
+                    prediction = dir2;
+                }
+                else if (r == 2)
+                {
+                    prediction = dir3;
+                }
             }
             Debug.Log("I predict you will go either " + dir1 + " OR " + dir2 + " OR " + dir3);
         }
