@@ -17,7 +17,6 @@ public class Inky : MonoBehaviour
     float inky_speed = 8.0f;
 
     int prediction = 0;
-    int antiSwitch = 0;
     float inky_dest_row;
     float inky_dest_col;
 
@@ -33,6 +32,7 @@ public class Inky : MonoBehaviour
     public PacMan pacman;
     public Blinky blinky;
     public GameObject inky_ghost;
+    public GameObject scriptObj;
 
     private const int ROWS = 29;
     private const int COLS = 26;
@@ -100,7 +100,7 @@ public class Inky : MonoBehaviour
         inky_current_row = inky_start_row;
         inky_current_col = inky_start_col;
 
-        astar_gen = new AStarAlgorithm();
+        astar_gen = scriptObj.GetComponent<AStarAlgorithm>();
         second_last_pos = new Pair<int, int>(0, 0);
         second_last_pos_temp = new Pair<int, int>(0, 0);
         
@@ -130,13 +130,6 @@ public class Inky : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            //NGramPrediction();
-            //SetInkyAmbushPoint();
-        }
-        //GetInkyAmbushPoint();
-
         switch (state)
         {
             case State.Chase:

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,9 +19,11 @@ public class Pinky : MonoBehaviour
     bool movingDOWN = false;
     bool movingLEFT = false;
     bool movingRIGHT = false;
+    bool moving = false;
     bool eaten = false;
     float jailTime = 0.0f;
 
+    public GameObject scriptObj;
     private AStarAlgorithm astar_gen;
     public Board board;
     public PacMan pacman;
@@ -31,7 +34,6 @@ public class Pinky : MonoBehaviour
     public int[,] path2D;
 
     Stack pinky_path = new Stack();
-    Random rand;
     Pair<int, int> pair;
     Pair<int, int> second_last_pos;
     Pair<int, int> second_last_pos_temp;
@@ -39,6 +41,103 @@ public class Pinky : MonoBehaviour
     int pinky_path_count_temp;
     int move_counter;
     int pinky_moves = 1; //every x moves pinky a*
+
+    int decision = 0;
+
+    public abstract class Decision
+    {
+        public abstract void Evaluate(PinkyCondition pinky, ref int dec);
+    }
+
+    public class PinkyCondition
+    {
+        //if (pacman.pacman_eaten == true)
+        public bool Eaten { get; set; }
+        //if (pacman.pacman_chase == true)
+        public bool PacmanChase { get; set; }
+        //if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && pinky_path.Count == 0)
+        /*
+        public bool MovingUp { get; set; }
+        public bool MovingRight { get; set; }
+        public bool MovingDown { get; set; }
+        public bool MovingLeft { get; set; }
+        */
+        public bool Moving { get; set; }
+        //public int PinkyPathCount { get; set; }
+    }
+    public class DecisionQuery : Decision
+    {
+        public string Title { get; set; }
+        public Decision Positive { get; set; }
+        public Decision Negative { get; set; }
+        public Func<PinkyCondition, bool> Test { get; set; }
+
+        public override void Evaluate(PinkyCondition pinky, ref int dec)
+        {
+            bool result = this.Test(pinky);
+            string resultAsString = result ? "yes" : "no";
+            //Debug.Log($"\t- {this.Title}? {resultAsString}");
+
+            if (result) this.Positive.Evaluate(pinky, ref dec);
+            else this.Negative.Evaluate(pinky, ref dec);
+        }
+    }
+
+    public class DecisionResult : Decision
+    {
+        public int Result { get; set; }
+        public override void Evaluate(PinkyCondition pinky, ref int decision)
+        {
+            decision = Result;
+            /**
+            string str = "";
+            if (Result == 1)
+            {
+                str = "Eaten";
+            } else if (Result == 2)
+            {
+                str = "Run Away";
+            } else if (Result == 3)
+            {
+                str = "Chase";
+            } else if (Result == 4)
+            {
+                str = "Wander";
+            }
+            */
+            //Debug.Log("\r\nRESULT:" + Result + " " + str);
+
+        }
+    }
+
+    private static DecisionQuery MainDecisionTree()
+    {
+        var movingBranch = new DecisionQuery
+        {
+            Title = "moving",
+            Test = (pinky) => pinky.Moving,
+            Positive = new DecisionResult { Result = 4 },
+            Negative = new DecisionResult { Result = 3 }
+        };
+
+        var chaseBranch = new DecisionQuery 
+        { 
+            Title = "chase", 
+            Test = (pinky) => pinky.PacmanChase,
+            Positive = new DecisionResult { Result = 2 },
+            Negative = movingBranch
+        };
+
+        var trunk = new DecisionQuery
+        {
+            Title = "Is he eaten/jailed?",
+            Test = (pinky) => pinky.Eaten,
+            Positive = new DecisionResult { Result = 1 },
+            Negative = chaseBranch
+        };
+
+        return trunk;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -83,7 +182,7 @@ public class Pinky : MonoBehaviour
         pinky_current_row = pinky_start_row;
         pinky_current_col = pinky_start_col;
 
-        astar_gen = new AStarAlgorithm();
+        astar_gen = scriptObj.GetComponent<AStarAlgorithm>();
         second_last_pos = new Pair<int, int>(0,0);
         second_last_pos_temp = new Pair<int, int>(0, 0);
     }
@@ -101,6 +200,7 @@ public class Pinky : MonoBehaviour
     }
     private void Astar(int dest_row, int dest_col)
     {
+        //astar_gen.aStarSearch(pinky_path, path2D, (int)pinky_current_row, (int)pinky_current_col, dest_row, dest_col, ref second_last_pos);
         astar_gen.aStarSearch(pinky_path, path2D, (int)pinky_current_row, (int)pinky_current_col, dest_row, dest_col, ref second_last_pos);
         pinky_path_count_temp = pinky_path.Count;
         path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
@@ -110,6 +210,18 @@ public class Pinky : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        var trunk = MainDecisionTree();
+
+        var pinky = new PinkyCondition
+        {
+            Eaten = eaten,
+            PacmanChase = pacman.pacman_chase,
+            Moving = moving
+        };
+
+        trunk.Evaluate(pinky, ref decision);
+
+
         if (eaten && pinky_current_col == pinky_start_col && pinky_current_row == pinky_start_row)
         {
             if (jailTime == 0) Debug.Log("Jail time started");
@@ -123,6 +235,37 @@ public class Pinky : MonoBehaviour
             }
         }
 
+        if (decision == 1)
+        {
+            // Return to start
+            if (jailTime == 0)
+            {
+                second_last_pos_temp = second_last_pos;
+                Astar(pinky_start_row, pinky_start_col);
+                pinky_speed = 10f;
+            }
+        } else if (decision == 2)
+        {
+            // Frightened
+            if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
+            {
+                //second_last_pos_temp = pinky_path_count_temp < pinky_moves ? second_last_pos : second_last_pos_temp2;
+                Astar((int)pinky_corner_row, (int)pinky_corner_col);
+            }
+            // Slow down
+            pinky_speed = 4.0f;
+        } else if (decision == 3)
+        {
+            second_last_pos_temp = second_last_pos;
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
+            pinky_speed = 8.0f;
+        } else if (decision == 4)
+        {
+            // Nothing yet
+            pinky_speed = 8.0f;
+        }
+        /**
         // DECISION TREE
         if (eaten)
         {
@@ -151,7 +294,7 @@ public class Pinky : MonoBehaviour
             {
                 // If Pacman is near
                 // Chase
-                if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && pinky_path.Count == 0)
+                if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT) // && pinky_path.Count == 0
                 {
                     second_last_pos_temp = second_last_pos;
                     path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
@@ -164,6 +307,7 @@ public class Pinky : MonoBehaviour
                 pinky_speed = 8.0f;
             }
         }
+        */
 
         if (move_counter == pinky_moves)
         {
@@ -185,21 +329,25 @@ public class Pinky : MonoBehaviour
             {
                 //Debug.Log("Moved UP");
                 movingUP = true;
+                moving = true;
             }
             else if (pair.first == pinky_current_row - 1)
             {
                 //Debug.Log("Moved DOWN");
                 movingDOWN = true;
+                moving = true;
             }
             else if (pair.second == pinky_current_col + 1)
             {
                 //Debug.Log("Moved RIGHT");
                 movingRIGHT = true;
+                moving = true;
             }
             else if (pair.second == pinky_current_col - 1)
             {
                 //Debug.Log("Moved LEFT");
                 movingLEFT = true;
+                moving = true;
             }
         }
         MoveGhost();
@@ -219,6 +367,7 @@ public class Pinky : MonoBehaviour
 
                 pinky_move_row = pair.first;
                 movingUP = false;
+                moving = false;
             }
         }
         else if (movingDOWN)
@@ -233,6 +382,7 @@ public class Pinky : MonoBehaviour
 
                 pinky_move_row = pair.first;
                 movingDOWN = false;
+                moving = false;
             }
         }
         else if (movingLEFT)
@@ -246,6 +396,7 @@ public class Pinky : MonoBehaviour
                 pinky_current_col = pair.second;
                 pinky_move_col = pair.second;
                 movingLEFT = false;
+                moving = false;
             }
         }
         else if (movingRIGHT)
@@ -260,6 +411,7 @@ public class Pinky : MonoBehaviour
                 pinky_current_col = pair.second;
                 pinky_move_col = pair.second;
                 movingRIGHT = false;
+                moving = false;
             }
         }
     }

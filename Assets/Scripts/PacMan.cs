@@ -38,8 +38,6 @@ public class PacMan : MonoBehaviour {
     public float pacman_ahead_row;
     //FOR INKY - BASED ON BLINKY'S POSITION
 
-
-
     float pacman_move_row;
     float pacman_move_col;
     int eaten_pellet = 0;
@@ -76,7 +74,6 @@ public class PacMan : MonoBehaviour {
         {
             SceneManager.LoadScene(0);
         }
-
         Chase();
         CheckInput ();
         MovePacman();

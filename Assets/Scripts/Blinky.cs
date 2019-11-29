@@ -26,7 +26,7 @@ public class Blinky : MonoBehaviour
     private AStarAlgorithm astar_gen;
     public Board board;
     public PacMan pacman;
-
+    public GameObject scriptObj;
     private const int ROWS = 29;
     private const int COLS = 26;
 
@@ -86,7 +86,7 @@ public class Blinky : MonoBehaviour
         blinky_current_row = blinky_start_row;
         blinky_current_col = blinky_start_col;
 
-        astar_gen = new AStarAlgorithm();
+        astar_gen = scriptObj.GetComponent<AStarAlgorithm>();
         second_last_pos = new Pair<int, int>(0, 0);
         second_last_pos_temp = new Pair<int, int>(0, 0);
 
