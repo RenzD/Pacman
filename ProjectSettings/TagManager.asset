@@ -8,6 +8,14 @@ TagManager:
   - BigPellet
   - Ghost
   - Pacman
+  - Pacman0
+  - Pacman1
+  - Pacman2
+  - Pacman3
+  - Pacman4
+  - Pacman5
+  - Pacman6
+  - Pacman7
   layers:
   - Default
   - TransparentFX
