@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    static int pacnums = 200;
-    public int[] movement = new int[pacnums];
+    static int movenums = 200;
+    public int[] movement = new int[movenums];
 
     bool movingUP = false;
     bool movingDOWN = false;
@@ -24,10 +24,9 @@ public class Movement : MonoBehaviour
     float pacman_move_col = 0;
     float pacman_current_row = 0;
     float pacman_current_col = 0;
-    float pacman_speed = 8.0f;
-
+    float pacman_speed = 20.0f;
     public double fitness = 0;
-
+    Animator anim;
     // Start is called before the first frame update
     void Start()
     {
@@ -62,18 +61,29 @@ public class Movement : MonoBehaviour
             { 1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1 },
             { 1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1 }
         };
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
         MovePacman();
-        Fitness();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Ghost" || other.tag == "BigPellet")
+        {
+            Fitness();
+            movesDone = true;
+            anim.enabled = false;
+        }
+
     }
 
     private void MovePacman()
     {
-        if (index < pacnums && !movesDone)
+        if (index < movenums && !movesDone)
         {
             if (movement[index] == 1 && !movingRIGHT && !movingDOWN && !movingLEFT)
             {
@@ -193,6 +203,8 @@ public class Movement : MonoBehaviour
                 index++;
                 if (index >= movement.Length)
                 {
+
+                    Fitness();
                     movesDone = true;
                 }
             }
@@ -201,7 +213,7 @@ public class Movement : MonoBehaviour
 
     public void Fitness()
     {
-        if (movesDone && !once)
+        if (!once)
         {
             once = true;
             fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
@@ -213,6 +225,44 @@ public class Movement : MonoBehaviour
     public void SetMoves(int[] moves)
     {
         movement = moves;
+    }
+    public void SetMovesFrom2D(int[,] moves, int childNum)
+    {
+        string str = "";
+        for (int i =0; i < movenums; i++)
+        {
+            str += movement[i];
+        }
+        //Debug.Log("=================================================================================");
+        //Debug.Log(str);
+        str = "";
+        movement = new int[movenums];
+        for (int i = 0; i < movenums; i++)
+        {
+            movement[i] = moves[childNum, i];
+            str += movement[i];
+        }
+        //Debug.Log(str);
+        //Debug.Log("=================================================================================");
+    }
+
+    public void ResetPosition()
+    {
+        transform.position = new Vector3(0.0f, 0.0f, 0.0f);
+    }
+
+    public void ResetIndex()
+    {
+        index = 0;
+        movesDone = false;
+        once = false;
+        pacman_move_row = 0;
+        pacman_move_col = 0;
+        pacman_current_row = 0;
+        pacman_current_col = 0;
+        transform.localScale = new Vector3(0.8f, 0.8f, 1);
+        transform.localRotation = Quaternion.Euler(0, 0, 90);
+        anim.enabled = true;
     }
 
     public int[] GetMoveArray()
