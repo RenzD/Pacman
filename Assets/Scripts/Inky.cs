@@ -27,7 +27,7 @@ public class Inky : MonoBehaviour
     bool movingDOWN = false;
     bool movingLEFT = false;
     bool movingRIGHT = false;
-    
+    bool turn = false;
 
     private AStarAlgorithm astar_gen;
     public Board board;
@@ -471,14 +471,41 @@ public class Inky : MonoBehaviour
         if (pacman.pacman_chase == false)
         {
             state = State.Chase;
+            turn = false;
         }
 
         // Frightened
         if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
         {
             //second_last_pos_temp = inky_path_count_temp < inky_moves ? second_last_pos : second_last_pos_temp2;
-            inky_ghost.transform.position = new Vector3(inky_corner_col, inky_corner_row, 0.0f);
-            Astar((int)inky_corner_row, (int)inky_corner_col);
+            if (!turn)
+            {
+                turn = true;
+                inky_ghost.transform.position = new Vector3(inky_corner_col, inky_corner_row, 0.0f);
+                Astar((int)inky_corner_row, (int)inky_corner_col);
+            }
+            else
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar((int)inky_corner_row, (int)inky_corner_col);
+            }
+
+            //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
+            if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col)
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar(6, 20);
+            }
+            if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col - 1 || inky_current_row == inky_corner_row + 1 && inky_current_col == inky_corner_col)
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar(6, 20);
+            }
+
+
         }
         // Slow down
         inky_speed = 4.0f;

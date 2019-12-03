@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/Pacman.unity
+- path: Assets/Scenes/GA.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

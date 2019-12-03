@@ -168,7 +168,6 @@ public class Blinky : MonoBehaviour
         {
             state = State.Frightened;
         }
-
     }
 
     private void Frightened()
@@ -177,26 +176,41 @@ public class Blinky : MonoBehaviour
         {
             state = State.Chase;
             chaseTime = 0.0f;
+            turn = false;
         }
 
         // Frightened
         if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
         {
-            //second_last_pos_temp = blinky_path_count_temp < blinky_moves ? second_last_pos : second_last_pos_temp2;
-            
-            Astar((int)blinky_corner_row, (int)blinky_corner_col);
-            /*
+            //Blinky is allowed to go backwards when hes frightened
+            if (!turn)
+            {
+                turn = true;
+                Astar((int)blinky_corner_row, (int)blinky_corner_col);
+            } else
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar((int)blinky_corner_row, (int)blinky_corner_col);
+            }
+
+            //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
             if (blinky_current_row == blinky_corner_row && blinky_current_col == blinky_corner_col)
             {
+                second_last_pos_temp = second_last_pos;
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
-                Astar((int)blinky_corner_row, (int)blinky_corner_col + 1);
+                Astar(24, 5);
             }
-            */
+            if (blinky_current_row == blinky_corner_row && blinky_current_col == blinky_corner_col+1 || blinky_current_row == blinky_corner_row-1 && blinky_current_col == blinky_corner_col)
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar(24, 5);
+            }
         }
         // Slow down
         blinky_speed = 4.0f;
     }
-
     private void Chase()
     {
         if (chaseTime > 10.0f)
@@ -218,7 +232,6 @@ public class Blinky : MonoBehaviour
             }
             blinky_speed = 8.0f;
         }
-
     }
 
     private void Eaten()
