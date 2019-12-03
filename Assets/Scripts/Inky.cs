@@ -14,23 +14,24 @@ public class Inky : MonoBehaviour
     float inky_move_col;
     float inky_corner_row = 0.0f;
     float inky_corner_col = 25.0f;
-    float inky_speed = 8.0f;
-
-    int prediction = 0;
     float inky_dest_row;
     float inky_dest_col;
+    float inky_speed = 8.0f;
+    float jailTime = 0.0f;
 
+    int prediction = 0;
+    int move_counter;
+    int inky_moves = 1; //every x moves inky a*
 
     bool movingUP = false;
     bool movingDOWN = false;
     bool movingLEFT = false;
     bool movingRIGHT = false;
-    float jailTime = 0.0f;
+    
 
     private AStarAlgorithm astar_gen;
     public Board board;
     public PacMan pacman;
-    public Blinky blinky;
     public GameObject inky_ghost;
     public GameObject scriptObj;
 
@@ -40,16 +41,13 @@ public class Inky : MonoBehaviour
     public int[,] path2D;
 
     Stack inky_path = new Stack();
-
     Pair<int, int> pair;
     Pair<int, int> second_last_pos;
     Pair<int, int> second_last_pos_temp;
 
-    int inky_path_count_temp;
-    int move_counter;
-    int inky_moves = 1; //every x moves inky a*
     State state;
 
+    //State Machine
     enum State
     {
         Chase,
@@ -122,7 +120,6 @@ public class Inky : MonoBehaviour
     private void Astar(int dest_row, int dest_col)
     {
         astar_gen.aStarSearch(inky_path, path2D, (int)inky_current_row, (int)inky_current_col, dest_row, dest_col, ref second_last_pos);
-        inky_path_count_temp = inky_path.Count;
         path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
         move_counter = 0;
     }
@@ -130,19 +127,17 @@ public class Inky : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //State machine
         switch (state)
         {
             case State.Chase:
                 Chase();
-                //Debug.Log("Chase state");
                 break;
             case State.Frightened:
                 Frightened();
-                //Debug.Log("Frightened state");
                 break;
             case State.Eaten:
-                ReturnToStart();
-                //Debug.Log("Eaten state");
+                Eaten();
                 break;
             default:
                 Debug.Log("Unknown state");
@@ -482,6 +477,7 @@ public class Inky : MonoBehaviour
         if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
         {
             //second_last_pos_temp = inky_path_count_temp < inky_moves ? second_last_pos : second_last_pos_temp2;
+            inky_ghost.transform.position = new Vector3(inky_corner_col, inky_corner_row, 0.0f);
             Astar((int)inky_corner_row, (int)inky_corner_col);
         }
         // Slow down
@@ -511,6 +507,7 @@ public class Inky : MonoBehaviour
                     Astar((int)inky_dest_row, (int)inky_dest_col);
                 } else
                 {
+                    //Heads towards pacman if pacman stops in one tile
                     Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
                 }
                 
@@ -520,7 +517,7 @@ public class Inky : MonoBehaviour
         
     }
 
-    private void ReturnToStart()
+    private void Eaten()
     {
         if (inky_current_col == inky_start_col && inky_current_row == inky_start_row)
         {
@@ -540,6 +537,7 @@ public class Inky : MonoBehaviour
         {
             second_last_pos_temp = second_last_pos;
             path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
+            inky_ghost.transform.position = new Vector3(inky_start_col, inky_start_row, 0.0f);
             Astar(inky_start_row, inky_start_col);
             inky_speed = 10f;
         }

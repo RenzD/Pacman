@@ -27,6 +27,7 @@ public class Pinky : MonoBehaviour
     private AStarAlgorithm astar_gen;
     public Board board;
     public PacMan pacman;
+    public GameObject pinky_ghost;
 
     private const int ROWS = 29;
     private const int COLS = 26;
@@ -51,19 +52,9 @@ public class Pinky : MonoBehaviour
 
     public class PinkyCondition
     {
-        //if (pacman.pacman_eaten == true)
         public bool Eaten { get; set; }
-        //if (pacman.pacman_chase == true)
         public bool PacmanChase { get; set; }
-        //if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && pinky_path.Count == 0)
-        /*
-        public bool MovingUp { get; set; }
-        public bool MovingRight { get; set; }
-        public bool MovingDown { get; set; }
-        public bool MovingLeft { get; set; }
-        */
         public bool Moving { get; set; }
-        //public int PinkyPathCount { get; set; }
     }
     public class DecisionQuery : Decision
     {
@@ -241,6 +232,7 @@ public class Pinky : MonoBehaviour
             if (jailTime == 0)
             {
                 second_last_pos_temp = second_last_pos;
+                pinky_ghost.transform.position = new Vector3(pinky_start_col, pinky_start_row, 0.0f);
                 Astar(pinky_start_row, pinky_start_col);
                 pinky_speed = 10f;
             }
@@ -250,15 +242,28 @@ public class Pinky : MonoBehaviour
             if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
             {
                 //second_last_pos_temp = pinky_path_count_temp < pinky_moves ? second_last_pos : second_last_pos_temp2;
+                pinky_ghost.transform.position = new Vector3(pinky_corner_col, pinky_corner_row, 0.0f);
                 Astar((int)pinky_corner_row, (int)pinky_corner_col);
             }
             // Slow down
             pinky_speed = 4.0f;
         } else if (decision == 3)
         {
-            second_last_pos_temp = second_last_pos;
-            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
-            Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
+            //Chase
+            if (pacman.pacman_ahead_row != pinky_current_row && pacman.pacman_ahead_col != pinky_current_col)
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                pinky_ghost.transform.position = new Vector3(pacman.pacman_ahead_col, pacman.pacman_ahead_row, 0.0f);
+                Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
+            }
+            else
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                pinky_ghost.transform.position = new Vector3(pacman.pacman_ahead_col, pacman.pacman_ahead_row, 0.0f);
+                Astar((int)pacman.pacman_current_row, (int)pacman.pacman_current_col);
+            }
             pinky_speed = 8.0f;
         } else if (decision == 4)
         {

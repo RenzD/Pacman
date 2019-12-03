@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PacMan : MonoBehaviour {
 
@@ -12,7 +13,8 @@ public class PacMan : MonoBehaviour {
     public float pacman_speed = 4.0f;
 
     public Board board;
-
+    public Text score;
+    int score_counter = 0;
     private bool movingLEFT = false;
     private bool movingRIGHT = false;
     private bool movingUP = false;
@@ -41,7 +43,7 @@ public class PacMan : MonoBehaviour {
     float pacman_move_row;
     float pacman_move_col;
     int eaten_pellet = 0;
-    int max_tiles_ahead = 4;
+    int max_tiles_ahead = 10;
 
     public List<int> directions = new List<int>(); // 1:North 2:East 3:South 4:West
 
@@ -86,7 +88,7 @@ public class PacMan : MonoBehaviour {
         {
             chaseTime += Time.deltaTime;
             //Debug.Log(chaseTime);
-            if (chaseTime > 3)
+            if (chaseTime > 5)
             {
                 Debug.Log("Chase over");
                 pacman_chase = false;
@@ -129,8 +131,11 @@ public class PacMan : MonoBehaviour {
         {
             Destroy(other.gameObject);
             eaten_pellet++;
+            score_counter += 10;
+            score.text = "Score: " + score_counter;
             //Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
             board.map2D[(int)pacman_current_row, (int)pacman_eaten_col] = 0;
+
         }
 
         if (other.tag == "BigPellet")
@@ -138,7 +143,10 @@ public class PacMan : MonoBehaviour {
             Destroy(other.gameObject);
             Debug.Log("POWER MODE");
             pacman_chase = true;
+            chaseTime = 0;
             eaten_pellet++;
+            score_counter += 50;
+            score.text = "Score: " + score_counter;
             //Debug.Log("Eaten Pellets: " + eaten_pellet + "\tRow: " + pacman_eaten_row + "\tCol: " + pacman_eaten_col);
             //Debug.Log("Eaten Big Pellets: " + board.map2D[(int)pacman_current_row, (int)pacman_eaten_col]);
             board.map2D[(int)pacman_current_row, (int)pacman_eaten_col] = 0;
@@ -146,8 +154,14 @@ public class PacMan : MonoBehaviour {
 
         if (other.tag == "Ghost")
         {
-            //if (!pacman_chase)
-                //SceneManager.LoadScene(0); 
+            if (!pacman_chase)
+            {
+                SceneManager.LoadScene(0);
+            } else
+            {
+                score_counter += 100;
+                score.text = "Score: " + score_counter;
+            }
         }
     }
 
