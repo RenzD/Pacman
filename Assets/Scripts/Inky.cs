@@ -18,6 +18,8 @@ public class Inky : MonoBehaviour
     float inky_dest_col;
     float inky_speed = 8.0f;
     float jailTime = 0.0f;
+    float scatterTime = 0.0f;
+    float chaseTime = 0.0f;
 
     int prediction = 0;
     int move_counter;
@@ -28,6 +30,7 @@ public class Inky : MonoBehaviour
     bool movingLEFT = false;
     bool movingRIGHT = false;
     bool turn = false;
+    bool breakBool = false;
 
     private AStarAlgorithm astar_gen;
     public Board board;
@@ -52,7 +55,8 @@ public class Inky : MonoBehaviour
     {
         Chase,
         Frightened,
-        Eaten
+        Eaten,
+        Scatter
     }
 
     // Start is called before the first frame update
@@ -139,11 +143,46 @@ public class Inky : MonoBehaviour
             case State.Eaten:
                 Eaten();
                 break;
+            case State.Scatter:
+                Scatter();
+                break;
             default:
                 Debug.Log("Unknown state");
                 break;
         }
         MoveGhost();
+    }
+
+    private void Scatter()
+    {
+        //Scatter
+        scatterTime += Time.deltaTime;
+        if (scatterTime > 3)
+        {
+            breakBool = false;
+            scatterTime = 0.0f;
+            state = State.Chase;
+        }
+        inky_speed = 8.0f;
+
+        second_last_pos_temp = second_last_pos;
+        inky_ghost.transform.position = new Vector3(inky_corner_col, inky_corner_row, 0.0f);
+        path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+        Astar((int)inky_corner_row, (int)inky_corner_col);
+
+        //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
+        if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col)
+        {
+            second_last_pos_temp = second_last_pos;
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            Astar(6, 20);
+        }
+        if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col - 1 || inky_current_row == inky_corner_row + 1 && inky_current_col == inky_corner_col)
+        {
+            second_last_pos_temp = second_last_pos;
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            Astar(6, 20);
+        }
     }
 
     private void ThirdDirectionCounter(int i, ref int dir_counter1, ref int dir_counter2, ref int dir_counter3, int dir1, int dir2, int dir3, int dir4)
@@ -513,6 +552,13 @@ public class Inky : MonoBehaviour
 
     private void Chase()
     {
+        chaseTime += Time.deltaTime;
+        if (chaseTime > 10)
+        {
+            breakBool = true;
+            chaseTime = 0.0f;
+            state = State.Scatter;
+        }
         if (pacman.pacman_chase)
         {
             state = State.Frightened;
