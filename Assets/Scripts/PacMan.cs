@@ -99,25 +99,29 @@ public class PacMan : MonoBehaviour {
 
     void CheckInput () {
 
-		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
+		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+        {
             if (!movingRIGHT && !movingDOWN && !movingUP)
             {
                 movingLEFT = true;
             }
-
-		} else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
+		}
+        else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+        {
             if (!movingLEFT && !movingDOWN && !movingUP) 
             {
                 movingRIGHT = true;
             }
-
-		} else if (Input.GetKey (KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
+		}
+        else if (Input.GetKey (KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
+        {
             if (!movingRIGHT && !movingDOWN && !movingLEFT)
             {
                 movingUP = true;
             }
-
-		} else if (Input.GetKey (KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
+		}
+        else if (Input.GetKey (KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
+        {
             if (!movingRIGHT && !movingLEFT && !movingUP)
             {
                 movingDOWN = true;
@@ -156,7 +160,7 @@ public class PacMan : MonoBehaviour {
         {
             if (!pacman_chase)
             {
-                SceneManager.LoadScene(0);
+                //SceneManager.LoadScene(0);
             } else
             {
                 score_counter += 100;
