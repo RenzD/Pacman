@@ -164,6 +164,21 @@ public class Blinky : MonoBehaviour
             state = State.Chase;
             chaseTime = 0.0f;
         }
+
+        //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
+        if (blinky_current_row == blinky_corner_row && blinky_current_col == blinky_corner_col)
+        {
+            second_last_pos_temp = second_last_pos;
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            Astar(24, 5);
+        }
+        if (blinky_current_row == blinky_corner_row && blinky_current_col == blinky_corner_col + 1 || blinky_current_row == blinky_corner_row - 1 && blinky_current_col == blinky_corner_col)
+        {
+            second_last_pos_temp = second_last_pos;
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            Astar(24, 5);
+        }
+
         if (pacman.pacman_chase)
         {
             state = State.Frightened;
@@ -176,6 +191,7 @@ public class Blinky : MonoBehaviour
         {
             state = State.Chase;
             chaseTime = 0.0f;
+            scatterTime = 0.0f;
             turn = false;
         }
 

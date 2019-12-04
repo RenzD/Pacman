@@ -14,6 +14,8 @@ public class Pinky : MonoBehaviour
     float pinky_corner_row = 28.0f;
     float pinky_corner_col = 25.0f;
     float pinky_speed = 8.0f;
+    float scatterTime = 0.0f;
+    float chaseTime = 0.0f;
 
     bool movingUP = false;
     bool movingDOWN = false;
@@ -22,6 +24,7 @@ public class Pinky : MonoBehaviour
     bool moving = false;
     bool eaten = false;
     bool turn = false;
+    bool breakBool = false;
     float jailTime = 0.0f;
 
     public GameObject scriptObj;
@@ -55,7 +58,7 @@ public class Pinky : MonoBehaviour
     {
         public bool Eaten { get; set; }
         public bool PacmanChase { get; set; }
-        public bool Moving { get; set; }
+        public bool BreakTime { get; set; }
     }
     public class DecisionQuery : Decision
     {
@@ -81,7 +84,7 @@ public class Pinky : MonoBehaviour
         public override void Evaluate(PinkyCondition pinky, ref int decision)
         {
             decision = Result;
-            /**
+            /*
             string str = "";
             if (Result == 1)
             {
@@ -91,32 +94,33 @@ public class Pinky : MonoBehaviour
                 str = "Run Away";
             } else if (Result == 3)
             {
-                str = "Chase";
+                str = "Scatter";
             } else if (Result == 4)
             {
-                str = "Wander";
+                str = "Chase";
             }
+            Debug.Log("\r\nRESULT:" + Result + " " + str);
             */
-            //Debug.Log("\r\nRESULT:" + Result + " " + str);
         }
     }
 
     private static DecisionQuery MainDecisionTree()
     {
-        var movingBranch = new DecisionQuery
+
+        var breakBranch = new DecisionQuery
         {
-            Title = "moving",
-            Test = (pinky) => pinky.Moving,
-            Positive = new DecisionResult { Result = 4 },
-            Negative = new DecisionResult { Result = 3 }
+            Title = "Does blinky need a break?",
+            Test = (pinky) => pinky.BreakTime,
+            Positive = new DecisionResult { Result = 3 },
+            Negative = new DecisionResult { Result = 4 }
         };
 
-        var chaseBranch = new DecisionQuery 
+        var powerBranch = new DecisionQuery 
         { 
-            Title = "chase", 
+            Title = "Did pacman eat a power pellet?", 
             Test = (pinky) => pinky.PacmanChase,
             Positive = new DecisionResult { Result = 2 },
-            Negative = movingBranch
+            Negative = breakBranch
         };
 
         var trunk = new DecisionQuery
@@ -124,7 +128,7 @@ public class Pinky : MonoBehaviour
             Title = "Is he eaten/jailed?",
             Test = (pinky) => pinky.Eaten,
             Positive = new DecisionResult { Result = 1 },
-            Negative = chaseBranch
+            Negative = powerBranch
         };
 
         return trunk;
@@ -206,7 +210,7 @@ public class Pinky : MonoBehaviour
         {
             Eaten = eaten,
             PacmanChase = pacman.pacman_chase,
-            Moving = moving
+            BreakTime = breakBool
         };
 
         trunk.Evaluate(pinky, ref decision);
@@ -240,6 +244,8 @@ public class Pinky : MonoBehaviour
             if (!turn)
             {
                 turn = true;
+                chaseTime = 0.0f;
+                scatterTime = 0.0f;
                 pinky_ghost.transform.position = new Vector3(pinky_corner_col, pinky_corner_row, 0.0f);
                 Astar((int)pinky_corner_row, (int)pinky_corner_col);
             } else
@@ -264,21 +270,64 @@ public class Pinky : MonoBehaviour
             }
             // Slow down
             pinky_speed = 4.0f;
-        } else if (decision == 3)
+        }
+        else if (decision == 3)
+        {
+            //Scatter
+            scatterTime += Time.deltaTime;
+            if (scatterTime > 3)
+            {
+                breakBool = false;
+                scatterTime = 0.0f;
+            }
+            pinky_speed = 8.0f;
+
+            second_last_pos_temp = second_last_pos;
+            pinky_ghost.transform.position = new Vector3(pinky_corner_col, pinky_corner_row, 0.0f);
+            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+            Astar((int)pinky_corner_row, (int)pinky_corner_col);
+
+            //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
+            if (pinky_current_row == pinky_corner_row && pinky_current_col == pinky_corner_col)
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar(24, 20);
+            }
+            if (pinky_current_row == pinky_corner_row && pinky_current_col == pinky_corner_col - 1 || pinky_current_row == pinky_corner_row - 1 && pinky_current_col == pinky_corner_col)
+            {
+                second_last_pos_temp = second_last_pos;
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                Astar(24, 20);
+            }
+
+        }
+        else if (decision == 4)
         {
             //Chase
+            chaseTime += Time.deltaTime;
+            if (chaseTime > 10)
+            {
+                breakBool = true;
+                chaseTime = 0.0f;
+            }
             turn = false;
             second_last_pos_temp = second_last_pos;
-            path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
-            pinky_ghost.transform.position = new Vector3(pacman.pacman_ahead_col, pacman.pacman_ahead_row, 0.0f);
-            Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
-            pinky_speed = 8.0f;
-        } else if (decision == 4)
-        {
-            // Nothing yet
+            if (!moving)
+            {
+                path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+                pinky_ghost.transform.position = new Vector3(pacman.pacman_ahead_col, pacman.pacman_ahead_row, 0.0f);
+                Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
+            }
             pinky_speed = 8.0f;
         }
-        
+
+
+        MoveGhost();
+    }
+
+    private void MoveGhost()
+    {
         if (move_counter == pinky_moves)
         {
             while (pinky_path.Count != 0)
@@ -320,11 +369,7 @@ public class Pinky : MonoBehaviour
                 moving = true;
             }
         }
-        MoveGhost();
-    }
 
-    private void MoveGhost()
-    {
         if (movingUP)
         {
             pinky_move_row += pinky_speed * Time.deltaTime;
