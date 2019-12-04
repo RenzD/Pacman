@@ -36,8 +36,8 @@ public class Genetic : MonoBehaviour
     {
         public int Compare(FitnessScore x, FitnessScore y)
         {
-            //first by age
-            int result = x.Fitness.CompareTo(y.Fitness);
+            //first by fitness score
+            int result = y.Fitness.CompareTo(x.Fitness);
 
             return result;
         }
@@ -110,7 +110,6 @@ public class Genetic : MonoBehaviour
             }
             moveScript[i].SetMoves(movement);
         }
-
     }
 
     // Update is called once per frame
@@ -142,18 +141,22 @@ public class Genetic : MonoBehaviour
         {
             if (!once)
             {
-                //DO ONLY ONCE
-                once = true;
+                once = true; //DO ONLY ONCE
                 Selection();
                 Crossover();
                 Mutation();
                 ResetBoard();
-                gen_counter++;
-                gen_text.text = "Generation: " + gen_counter.ToString();
-                fitness_text.text = "Fitness: " + top_fitness.ToString();
+                UpdateText();
             }
-            
+
         }
+    }
+
+    private void UpdateText()
+    {
+        gen_counter++;
+        gen_text.text = "Generation: " + gen_counter.ToString();
+        fitness_text.text = "Fitness: " + top_fitness.ToString();
     }
 
     private void ResetBoard()
@@ -224,7 +227,6 @@ public class Genetic : MonoBehaviour
     private void Crossover()
     {
         children_movements = new int[pacnums, movenums];
-        int split_counter = 3; //100/200, 50/200, 25/200
         bool parent_switch = false;
         //hardcoded splits for a 200 
         int split1 = 100;
@@ -309,7 +311,7 @@ public class Genetic : MonoBehaviour
             for (int j = 0; j < movenums; j+=2)
             {
                 rnd = UnityEngine.Random.Range(0, 100);
-                if (rnd < 10)
+                if (rnd < 5)
                 {
                     rnd_dir = UnityEngine.Random.Range(1, 5);
                     children_movements[i, j] = rnd_dir;

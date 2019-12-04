@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 86924969}
   - component: {fileID: 86924971}
   - component: {fileID: 86924972}
+  - component: {fileID: 86924973}
   m_Layer: 0
   m_Name: Blinky
   m_TagString: Ghost
@@ -217,6 +218,15 @@ MonoBehaviour:
   board: {fileID: 516455175}
   pacman: {fileID: 1880952301}
   scriptObj: {fileID: 1540423592}
+  ghostUp: {fileID: 9100000, guid: ba2e2fc1e16aa31409b2d7d5171ed113, type: 2}
+  ghostRight: {fileID: 9100000, guid: 3381eb684cf487e49acfaa2e3759f8f7, type: 2}
+  ghostDown: {fileID: 9100000, guid: 45eb0cc855bcc4441b19f146c93e3aa9, type: 2}
+  ghostLeft: {fileID: 9100000, guid: 0e6b6a006edb83d4fb6ff9b74a800adb, type: 2}
+  scared: {fileID: 9100000, guid: 64fb47c44a5c4184bb4dfbeec1173412, type: 2}
+  eyesUp: {fileID: 21300000, guid: b4ff208456b12964d82c7b9dba86cd5c, type: 3}
+  eyesRight: {fileID: 21300000, guid: 619c6ba9ab30918449abb239d9f77a50, type: 3}
+  eyesDown: {fileID: 21300000, guid: 788dbd4b60591d44b8eb5a376b6f208e, type: 3}
+  eyesLeft: {fileID: 21300000, guid: d3feb77827ae270469051128c9ea7c72, type: 3}
 --- !u!65 &86924972
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -230,6 +240,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!95 &86924973
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86924968}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &217274937
 GameObject:
   m_ObjectHideFlags: 0
@@ -608,7 +637,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1177311116}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.46, y: -4.39, z: 0}
+  m_LocalPosition: {x: 12.9, y: -5.81, z: 0}
   m_LocalScale: {x: 0.79999995, y: 0.79999995, z: 1}
   m_Children: []
   m_Father: {fileID: 516455176}
@@ -892,7 +921,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1585621822}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.726082, y: -4.3761325, z: 0}
+  m_LocalPosition: {x: 14.75, y: -5.7961326, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_Children: []
   m_Father: {fileID: 516455176}
@@ -910,6 +939,7 @@ GameObject:
   - component: {fileID: 1874762012}
   - component: {fileID: 1874762014}
   - component: {fileID: 1874762015}
+  - component: {fileID: 1874762016}
   m_Layer: 0
   m_Name: Pinky
   m_TagString: Ghost
@@ -996,6 +1026,15 @@ MonoBehaviour:
   board: {fileID: 516455175}
   pacman: {fileID: 1880952301}
   pinky_ghost: {fileID: 1177311116}
+  ghostUp: {fileID: 9100000, guid: 7cb389e51d2e5ce4a900deedfae53c29, type: 2}
+  ghostRight: {fileID: 9100000, guid: b44b8ff92f300a14f9e31d1b066064a4, type: 2}
+  ghostDown: {fileID: 9100000, guid: a8e726b1299a87a4fb3c71e3c6946cd1, type: 2}
+  ghostLeft: {fileID: 9100000, guid: 9a48b9db0082ab04b94c00ec67fb3cb8, type: 2}
+  scared: {fileID: 9100000, guid: 64fb47c44a5c4184bb4dfbeec1173412, type: 2}
+  eyesUp: {fileID: 21300000, guid: b4ff208456b12964d82c7b9dba86cd5c, type: 3}
+  eyesRight: {fileID: 21300000, guid: 619c6ba9ab30918449abb239d9f77a50, type: 3}
+  eyesDown: {fileID: 21300000, guid: 788dbd4b60591d44b8eb5a376b6f208e, type: 3}
+  eyesLeft: {fileID: 21300000, guid: d3feb77827ae270469051128c9ea7c72, type: 3}
 --- !u!65 &1874762015
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1009,6 +1048,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!95 &1874762016
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874762011}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1880952297
 GameObject:
   m_ObjectHideFlags: 0
@@ -1253,6 +1311,7 @@ GameObject:
   - component: {fileID: 2038994025}
   - component: {fileID: 2038994028}
   - component: {fileID: 2038994027}
+  - component: {fileID: 2038994029}
   m_Layer: 0
   m_Name: Inky
   m_TagString: Ghost
@@ -1339,6 +1398,15 @@ MonoBehaviour:
   pacman: {fileID: 1880952301}
   inky_ghost: {fileID: 1585621822}
   scriptObj: {fileID: 1540423592}
+  ghostUp: {fileID: 9100000, guid: f0934e82711340c4e98a1d2c553b2582, type: 2}
+  ghostRight: {fileID: 9100000, guid: 86e353ab1c4386643a52454a080b959f, type: 2}
+  ghostDown: {fileID: 9100000, guid: b652f3464ad40ac408649e1172c4a9d6, type: 2}
+  ghostLeft: {fileID: 9100000, guid: 763375fcb78f7c44caf55b52f0652887, type: 2}
+  scared: {fileID: 9100000, guid: 64fb47c44a5c4184bb4dfbeec1173412, type: 2}
+  eyesUp: {fileID: 21300000, guid: b4ff208456b12964d82c7b9dba86cd5c, type: 3}
+  eyesRight: {fileID: 21300000, guid: 619c6ba9ab30918449abb239d9f77a50, type: 3}
+  eyesDown: {fileID: 21300000, guid: 788dbd4b60591d44b8eb5a376b6f208e, type: 3}
+  eyesLeft: {fileID: 21300000, guid: d3feb77827ae270469051128c9ea7c72, type: 3}
 --- !u!65 &2038994028
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1352,6 +1420,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.5, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!95 &2038994029
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2038994024}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &7396725624334496489
 PrefabInstance:
   m_ObjectHideFlags: 0

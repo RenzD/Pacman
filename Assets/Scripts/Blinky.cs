@@ -35,6 +35,15 @@ public class Blinky : MonoBehaviour
     public Board board;
     public PacMan pacman;
     public GameObject scriptObj;
+    public RuntimeAnimatorController ghostUp;
+    public RuntimeAnimatorController ghostRight;
+    public RuntimeAnimatorController ghostDown;
+    public RuntimeAnimatorController ghostLeft;
+    public RuntimeAnimatorController scared;
+    public Sprite eyesUp;
+    public Sprite eyesRight;
+    public Sprite eyesDown;
+    public Sprite eyesLeft;
 
     private const int ROWS = 29;
     private const int COLS = 26;
@@ -108,6 +117,64 @@ public class Blinky : MonoBehaviour
 
     }
 
+    void UpdateAnimatorController()
+    {
+        if (state == State.Chase)
+        {
+            if (movingUP)
+            {
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostUp;
+            }
+            else if (movingRIGHT)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
+            }
+            else if (movingDOWN)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostDown;
+            }
+            else if (movingLEFT)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostLeft;
+            }
+            else
+            {
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
+            }
+            
+        } 
+        else if (state == State.Frightened)
+        {
+            transform.GetComponent<Animator>().runtimeAnimatorController = scared;
+        } 
+        else if (state == State.Eaten)
+        {
+            transform.GetComponent<Animator>().runtimeAnimatorController = null;
+            if (movingUP)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesUp;
+            }
+            else if (movingRIGHT)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesRight;
+            }
+            else if (movingDOWN)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
+            }
+            else if (movingLEFT)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesLeft;
+            } else
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Pacman")
@@ -116,6 +183,7 @@ public class Blinky : MonoBehaviour
             {
                 Debug.Log("Return to Start");
                 state = State.Eaten;
+                
             }
         }
     }
@@ -148,7 +216,7 @@ public class Blinky : MonoBehaviour
                 Debug.Log("Unknown state");
                 break;
         }
-        chaseTime += Time.deltaTime;
+        
         MoveGhost();
     }
 
@@ -229,6 +297,7 @@ public class Blinky : MonoBehaviour
     }
     private void Chase()
     {
+        chaseTime += Time.deltaTime;
         if (chaseTime > 10.0f)
         {
             state = State.Scatter;
@@ -261,6 +330,8 @@ public class Blinky : MonoBehaviour
                 state = State.Chase;
                 blinky_speed = 8f;
                 jailTime = 0.0f;
+                chaseTime = 0.0f;
+                scatterTime = 0.0f;
                 Debug.Log("Jail Time over");
             }
         }
@@ -313,6 +384,7 @@ public class Blinky : MonoBehaviour
                 //Debug.Log("Moved LEFT");
                 movingLEFT = true;
             }
+            UpdateAnimatorController();
         }
 
         if (movingUP)

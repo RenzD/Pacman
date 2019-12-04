@@ -32,6 +32,15 @@ public class Pinky : MonoBehaviour
     public Board board;
     public PacMan pacman;
     public GameObject pinky_ghost;
+    public RuntimeAnimatorController ghostUp;
+    public RuntimeAnimatorController ghostRight;
+    public RuntimeAnimatorController ghostDown;
+    public RuntimeAnimatorController ghostLeft;
+    public RuntimeAnimatorController scared;
+    public Sprite eyesUp;
+    public Sprite eyesRight;
+    public Sprite eyesDown;
+    public Sprite eyesLeft;
 
     private const int ROWS = 29;
     private const int COLS = 26;
@@ -182,6 +191,65 @@ public class Pinky : MonoBehaviour
         second_last_pos_temp = new Pair<int, int>(0, 0);
     }
 
+    void UpdateAnimatorController()
+    {
+        if (decision == 4)
+        {
+            if (movingUP)
+            {
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostUp;
+            }
+            else if (movingRIGHT)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
+            }
+            else if (movingDOWN)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostDown;
+            }
+            else if (movingLEFT)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostLeft;
+            }
+            else
+            {
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
+            }
+
+        }
+        else if (decision == 2)
+        {
+            transform.GetComponent<Animator>().runtimeAnimatorController = scared;
+        }
+        else if (decision == 1)
+        {
+            transform.GetComponent<Animator>().runtimeAnimatorController = null;
+            if (movingUP)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesUp;
+            }
+            else if (movingRIGHT)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesRight;
+            }
+            else if (movingDOWN)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
+            }
+            else if (movingLEFT)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesLeft;
+            }
+            else
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Pacman")
@@ -262,7 +330,8 @@ public class Pinky : MonoBehaviour
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
                 Astar(24, 20);
             }
-            if (pinky_current_row == pinky_corner_row && pinky_current_col == pinky_corner_col - 1 || pinky_current_row == pinky_corner_row - 1 && pinky_current_col == pinky_corner_col)
+            if (pinky_current_row == pinky_corner_row && pinky_current_col == pinky_corner_col - 1 || 
+                pinky_current_row == pinky_corner_row - 1 && pinky_current_col == pinky_corner_col)
             {
                 second_last_pos_temp = second_last_pos;
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
@@ -368,6 +437,7 @@ public class Pinky : MonoBehaviour
                 movingLEFT = true;
                 moving = true;
             }
+            UpdateAnimatorController();
         }
 
         if (movingUP)

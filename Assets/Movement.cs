@@ -24,7 +24,9 @@ public class Movement : MonoBehaviour
     float pacman_move_col = 0;
     float pacman_current_row = 0;
     float pacman_current_col = 0;
-    float pacman_speed = 20.0f;
+    float pacman_speed = 10.0f;
+    float finishTime = 0.0f;
+    [NonSerialized]
     public double fitness = 0;
     Animator anim;
     // Start is called before the first frame update
@@ -67,6 +69,7 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        finishTime += Time.deltaTime;
         MovePacman();
     }
 
@@ -74,11 +77,41 @@ public class Movement : MonoBehaviour
     {
         if (other.tag == "Ghost" || other.tag == "BigPellet")
         {
-            Fitness();
+            if (!once)
+            {
+                once = true;
+                if (other.tag == "Ghost")
+                {
+                    fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
+                    Debug.Log("Fit: " + fitness);
+                    fitness = 53 - fitness;
+                    //fitness = Math.Round(Math.Sqrt(fitness), 5);
+                } 
+                else if (other.tag == "BigPellet")
+                {
+                    fitness = 53;
+                    float time_fitness = 20.0f - finishTime;
+                    fitness += time_fitness;
+                }
+            }
             movesDone = true;
             anim.enabled = false;
         }
 
+    }
+
+    public void Fitness()
+    {
+        if (!once)
+        {
+            once = true;
+            fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
+            fitness = 53 - fitness;
+            
+            Debug.Log("Fit: " + fitness);
+            //fitness = Math.Round(Math.Sqrt(fitness), 5);
+            //Debug.Log("Fitness: " + fitness);
+        }
     }
 
     private void MovePacman()
@@ -206,19 +239,9 @@ public class Movement : MonoBehaviour
 
                     Fitness();
                     movesDone = true;
+                    Debug.Log(finishTime);
                 }
             }
-        }
-    }
-
-    public void Fitness()
-    {
-        if (!once)
-        {
-            once = true;
-            fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
-            fitness = Math.Round(Math.Sqrt(fitness), 5);
-            //Debug.Log("Fitness: " + fitness);
         }
     }
 
@@ -263,6 +286,7 @@ public class Movement : MonoBehaviour
         transform.localScale = new Vector3(0.8f, 0.8f, 1);
         transform.localRotation = Quaternion.Euler(0, 0, 90);
         anim.enabled = true;
+        finishTime = 0.0f;
     }
 
     public int[] GetMoveArray()
