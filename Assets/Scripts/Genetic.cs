@@ -20,8 +20,11 @@ public class Genetic : MonoBehaviour
     public int[] children_movement;
     public int[,] parent_movements;
     public int[,] children_movements;
+    
     Movement[] moveScript;
     GameObject[] pacman;
+    public GameObject pelletsPrefab;
+
     public Text gen_text;
     public Text fitness_text;
     double top_fitness;
@@ -87,6 +90,7 @@ public class Genetic : MonoBehaviour
             { 1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1 }
         };
 
+        InstantiatePelletPrefab();
         
         int move = UnityEngine.Random.Range(1, 5);
         int counter = 0;
@@ -95,13 +99,15 @@ public class Genetic : MonoBehaviour
         for (int i = 0; i < pacnums; i++)
         {
             pacman[i] = Instantiate(pacmanPrefab, transform.position, transform.rotation);
+            pacman[i].tag = "Pacman" + i.ToString();
             moveScript[i] = pacman[i].GetComponent<Movement>();
+            moveScript[i].SetPelletTag("Pellet" + i.ToString());
             movement = new int[movenums];
 
             for (int j = 0; j < movenums; j++)
             {
                 counter++;
-                if (counter == 3)
+                if (counter == 4)
                 {
                     move = UnityEngine.Random.Range(1, 5);
                     counter = 0;
@@ -151,7 +157,31 @@ public class Genetic : MonoBehaviour
 
         }
     }
+    public void InstantiatePelletPrefab()
+    {
+        Instantiate(pelletsPrefab, new Vector3(14.0f, 26.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(14.0f, 27.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(14.0f, 28.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(15.0f, 28.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(16.0f, 28.0f, 0.0f), transform.rotation);
 
+
+        Instantiate(pelletsPrefab, new Vector3(22.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(23.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(24.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 22.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 23.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 24.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 25.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 26.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(25.0f, 27.0f, 0.0f), transform.rotation);
+
+        Instantiate(pelletsPrefab, new Vector3(8.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(9.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(10.0f, 21.0f, 0.0f), transform.rotation);
+        Instantiate(pelletsPrefab, new Vector3(11.0f, 21.0f, 0.0f), transform.rotation);
+    }
     private void UpdateText()
     {
         gen_counter++;
@@ -169,7 +199,7 @@ public class Genetic : MonoBehaviour
             generationDone = false;
             once = false;
         }
-
+        InstantiatePelletPrefab();
     }
 
     private void Selection()
@@ -207,7 +237,7 @@ public class Genetic : MonoBehaviour
                     top_fitness = p.Fitness;
                 }
                 string str2 = "";
-                Debug.Log("Fitness" + (parentCounter + 1) + ": " + p.Fitness);
+                //Debug.Log("Fitness" + (parentCounter + 1) + ": " + p.Fitness);
                 for (int x = 0; x < movenums; x++)
                 {
                     parent_movements[parentCounter, x] = p.MoveArray[x];
@@ -232,33 +262,32 @@ public class Genetic : MonoBehaviour
         int split1 = 100;
         int split2 = 50;
         int split3 = 25;
-        int split4 = 13;
+        int split4 = 150;
 
         //Mix parents movement[] to create 8 variety of movement[]
-        //100
-        InheritMovements(ref parent_switch, split1, 0);
-        //100  reverse
-        parent_switch = true;
-        InheritMovements(ref parent_switch, split1, 1);
-        //50
-        InheritMovements(ref parent_switch, split2, 2);
-        //50 reverse
-        parent_switch = true;
-        InheritMovements(ref parent_switch, split2, 3);
-        //25
-        InheritMovements(ref parent_switch, split3, 4);
-        //25 reverse
-        parent_switch = true;
-        InheritMovements(ref parent_switch, split3, 5);
-        //13
-        InheritMovements(ref parent_switch, split4, 6);
         //keep best parent from the previous gen
-        
-        //InheritMovements(ref parent_switch, split4, 7);
         for (int i = 0; i < movenums; i++)
         {
-            children_movements[7, i] = parent_movements[0, i];
+            children_movements[0, i] = parent_movements[0, i];
         }
+        //100
+        InheritMovements(ref parent_switch, split1, 1);
+        //100  reverse
+        parent_switch = true;
+        InheritMovements(ref parent_switch, split1, 2);
+        //50
+        InheritMovements(ref parent_switch, split2, 3);
+        //50 reverse
+        parent_switch = true;
+        InheritMovements(ref parent_switch, split2, 4);
+        //25
+        InheritMovements(ref parent_switch, split3, 5);
+        //25 reverse
+        parent_switch = true;
+        InheritMovements(ref parent_switch, split3, 6);
+        //13
+        InheritMovements(ref parent_switch, split4, 7);
+        
     }
 
     private void InheritMovements(ref bool parent_switch, int split, int childNum)
@@ -306,16 +335,18 @@ public class Genetic : MonoBehaviour
     {
         int rnd = 0;
         int rnd_dir = 0;
-        for (int i = 0; i < pacnums-1; i++)
+        for (int i = 1; i < pacnums; i++)
         {
-            for (int j = 0; j < movenums; j+=2)
+            for (int j = 0; j < movenums; j+=3)
             {
                 rnd = UnityEngine.Random.Range(0, 100);
-                if (rnd < 5)
+                if (rnd < 10)
                 {
                     rnd_dir = UnityEngine.Random.Range(1, 5);
                     children_movements[i, j] = rnd_dir;
-                    children_movements[i, j+1] = rnd_dir;
+                    children_movements[i, j + 1] = rnd_dir;
+                    if (j+2 < 200)
+                        children_movements[i, j + 2] = rnd_dir;
                 }
             }
         }

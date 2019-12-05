@@ -45,6 +45,7 @@ public class PacMan : MonoBehaviour {
     int eaten_pellet = 0;
     int max_tiles_ahead = 10;
 
+    [NonSerialized]
     public List<int> directions = new List<int>(); // 1:North 2:East 3:South 4:West
 
     [NonSerialized]
@@ -72,6 +73,11 @@ public class PacMan : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SceneManager.LoadScene(0);
+        }
+
         if (eaten_pellet == 246)
         {
             SceneManager.LoadScene(0);
@@ -128,8 +134,7 @@ public class PacMan : MonoBehaviour {
             }
 		}
 	}
-
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Pellet")
         {
@@ -161,13 +166,15 @@ public class PacMan : MonoBehaviour {
             if (!pacman_chase)
             {
                 SceneManager.LoadScene(0);
-            } else
+            }
+            else
             {
                 score_counter += 100;
                 score.text = "Score: " + score_counter;
             }
         }
     }
+   
 
     void MovePacman()
     {

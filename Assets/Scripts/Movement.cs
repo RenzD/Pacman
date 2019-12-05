@@ -28,7 +28,12 @@ public class Movement : MonoBehaviour
     float finishTime = 0.0f;
     [NonSerialized]
     public double fitness = 0;
+    int pellets_eaten = 0;
+
+    string pellet_tag = "";
     Animator anim;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,9 +53,9 @@ public class Movement : MonoBehaviour
             { 0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0 },
             { 0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0 },
             { 0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0 },
-            { 0,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0 },
-            { 0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,0,0,1,0,0,1,0,0,0,0,0 },
-            { 0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,0,0,1,0,0,1,0,0,0,0,0 },
+            { 0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0 },
+            { 0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0 },
+            { 0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0 },
             { 0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0 },
             { 0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0 },
             { 0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0 },
@@ -73,7 +78,7 @@ public class Movement : MonoBehaviour
         MovePacman();
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Ghost" || other.tag == "BigPellet")
         {
@@ -83,21 +88,36 @@ public class Movement : MonoBehaviour
                 if (other.tag == "Ghost")
                 {
                     fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
-                    Debug.Log("Fit: " + fitness);
+                    //Debug.Log("Fit: " + fitness);
                     fitness = 53 - fitness;
+                    fitness += pellets_eaten;
                     //fitness = Math.Round(Math.Sqrt(fitness), 5);
-                } 
+                }
                 else if (other.tag == "BigPellet")
                 {
                     fitness = 53;
-                    float time_fitness = 20.0f - finishTime;
+                    double time_fitness = 40 - Math.Round((double)finishTime, 2);
+                    fitness += pellets_eaten;
                     fitness += time_fitness;
+                    fitness += 20; //Finish reward
                 }
             }
             movesDone = true;
             anim.enabled = false;
         }
 
+        if (other.tag == pellet_tag)
+        {
+            Destroy(other.gameObject);
+            pellets_eaten += 5;
+            //Debug.Log("Eating");
+        }
+    }
+
+
+    public void SetPelletTag(string pTag) 
+    {
+        pellet_tag = pTag;
     }
 
     public void Fitness()
@@ -107,8 +127,9 @@ public class Movement : MonoBehaviour
             once = true;
             fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
             fitness = 53 - fitness;
+            fitness += pellets_eaten;
             
-            Debug.Log("Fit: " + fitness);
+            //Debug.Log("Fit: " + fitness);
             //fitness = Math.Round(Math.Sqrt(fitness), 5);
             //Debug.Log("Fitness: " + fitness);
         }
@@ -239,7 +260,7 @@ public class Movement : MonoBehaviour
 
                     Fitness();
                     movesDone = true;
-                    Debug.Log(finishTime);
+                    //Debug.Log(finishTime);
                 }
             }
         }
@@ -256,8 +277,6 @@ public class Movement : MonoBehaviour
         {
             str += movement[i];
         }
-        //Debug.Log("=================================================================================");
-        //Debug.Log(str);
         str = "";
         movement = new int[movenums];
         for (int i = 0; i < movenums; i++)
@@ -265,8 +284,6 @@ public class Movement : MonoBehaviour
             movement[i] = moves[childNum, i];
             str += movement[i];
         }
-        //Debug.Log(str);
-        //Debug.Log("=================================================================================");
     }
 
     public void ResetPosition()
@@ -287,10 +304,24 @@ public class Movement : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, 0, 90);
         anim.enabled = true;
         finishTime = 0.0f;
+        pellets_eaten = 0;
+        DestroyPellets();
     }
 
     public int[] GetMoveArray()
     {
         return movement;
+    }
+
+    public void DestroyPellets()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            var Pellets = GameObject.FindGameObjectsWithTag("Pellet" + i.ToString());
+            foreach(var pellet in Pellets) {
+                Destroy(pellet);
+            }
+        }
+        
     }
 }

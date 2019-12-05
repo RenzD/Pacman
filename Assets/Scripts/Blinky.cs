@@ -21,7 +21,6 @@ public class Blinky : MonoBehaviour
     float jailTime = 0.0f;
     float chaseTime = 0.0f;
     float scatterTime = 0.0f;
-    int prediction = 0;
     int move_counter;
     int blinky_moves = 1; //every x moves blinky a*
 
@@ -175,7 +174,7 @@ public class Blinky : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.tag == "Pacman")
         {
@@ -183,13 +182,19 @@ public class Blinky : MonoBehaviour
             {
                 Debug.Log("Return to Start");
                 state = State.Eaten;
-                
+
             }
         }
     }
+
+
     private void Astar(int dest_row, int dest_col)
     {
-        astar_gen.aStarSearch(blinky_path, path2D, (int)blinky_current_row, (int)blinky_current_col, dest_row, dest_col, ref second_last_pos);
+        astar_gen.AStarSearch(blinky_path, path2D, (int)blinky_current_row, 
+                              (int)blinky_current_col, dest_row, dest_col, 
+                              ref second_last_pos);
+
+        //Sets the path to 1 to unblock it for the next astar search
         path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
         move_counter = 0;
     }
@@ -348,6 +353,9 @@ public class Blinky : MonoBehaviour
 
     private void MoveGhost()
     {
+        // After x amount of moves, clear the path so we can find a new one
+        // I have set move_counter to 1, so its very precise getting to its target destination
+        // Checking every 1 tile moved
         if (move_counter == blinky_moves)
         {
             while (blinky_path.Count != 0)
@@ -355,7 +363,7 @@ public class Blinky : MonoBehaviour
                 blinky_path.Pop();
             }
         }
-
+        // Pop the tile pos and compare to current position to determine next move
         if (blinky_path.Count != 0 && move_counter != blinky_moves
                                   && !movingUP && !movingDOWN
                                   && !movingLEFT && !movingRIGHT)
@@ -363,37 +371,26 @@ public class Blinky : MonoBehaviour
             move_counter++;
             pair = (Pair<int, int>)blinky_path.Peek();
             blinky_path.Pop();
-
+            
             if (pair.first == blinky_current_row + 1)
             {
-                //Debug.Log("Moved UP");
                 movingUP = true;
-            }
-            else if (pair.first == blinky_current_row - 1)
-            {
-                //Debug.Log("Moved DOWN");
+            } else if (pair.first == blinky_current_row - 1) {
                 movingDOWN = true;
-            }
-            else if (pair.second == blinky_current_col + 1)
-            {
-                //Debug.Log("Moved RIGHT");
+            } else if (pair.second == blinky_current_col + 1) {
                 movingRIGHT = true;
-            }
-            else if (pair.second == blinky_current_col - 1)
-            {
-                //Debug.Log("Moved LEFT");
+            } else if (pair.second == blinky_current_col - 1) {
                 movingLEFT = true;
             }
+            //Updates ghost animations
             UpdateAnimatorController();
         }
 
-        if (movingUP)
-        {
+        // When moving, update position towards next position
+        if (movingUP) {
             blinky_move_row += blinky_speed * Time.deltaTime;
             transform.position = new Vector3(blinky_current_col, blinky_move_row, 0.0f);
-
-            if (blinky_move_row > pair.first)
-            {
+            if (blinky_move_row > pair.first) {
                 transform.position = new Vector3(blinky_current_col, pair.first, 0.0f);
                 blinky_current_row = pair.first;
 

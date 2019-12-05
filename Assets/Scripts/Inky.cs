@@ -16,7 +16,7 @@ public class Inky : MonoBehaviour
     float inky_corner_col = 25.0f;
     float inky_dest_row;
     float inky_dest_col;
-    float inky_speed = 8.0f;
+    float inky_speed = 10.0f;
     float jailTime = 0.0f;
     float scatterTime = 0.0f;
     float chaseTime = 0.0f;
@@ -30,7 +30,6 @@ public class Inky : MonoBehaviour
     bool movingLEFT = false;
     bool movingRIGHT = false;
     bool turn = false;
-    bool breakBool = false;
 
     private AStarAlgorithm astar_gen;
     public Board board;
@@ -57,9 +56,8 @@ public class Inky : MonoBehaviour
     Pair<int, int> second_last_pos;
     Pair<int, int> second_last_pos_temp;
 
-    State state;
 
-    //State Machine
+    State state;
     enum State
     {
         Chase,
@@ -178,20 +176,21 @@ public class Inky : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.tag == "Pacman")
         {
-            if (pacman.pacman_chase == true)
+            if (state == State.Frightened)
             {
                 Debug.Log("Return to Start");
                 state = State.Eaten;
             }
         }
     }
+
     private void Astar(int dest_row, int dest_col)
     {
-        astar_gen.aStarSearch(inky_path, path2D, (int)inky_current_row, (int)inky_current_col, dest_row, dest_col, ref second_last_pos);
+        astar_gen.AStarSearch(inky_path, path2D, (int)inky_current_row, (int)inky_current_col, dest_row, dest_col, ref second_last_pos);
         path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 1;
         move_counter = 0;
     }
@@ -223,19 +222,22 @@ public class Inky : MonoBehaviour
 
     private void Scatter()
     {
-        //Scatter
+        // Time break time
         scatterTime += Time.deltaTime;
         if (scatterTime > 3)
         {
-            breakBool = false;
             scatterTime = 0.0f;
+            //Switch state back to chase
             state = State.Chase;
         }
         inky_speed = 8.0f;
 
         second_last_pos_temp = second_last_pos;
+        // Indicates/shows where inky's destination is in the game scene
         inky_ghost.transform.position = new Vector3(inky_corner_col, inky_corner_row, 0.0f);
+        // Locks previous tile so inky cant turn back
         path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
+        // Return to inky's corner
         Astar((int)inky_corner_row, (int)inky_corner_col);
 
         //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
@@ -275,27 +277,19 @@ public class Inky : MonoBehaviour
 
     private void NGramPrediction()
     {
-        // Get Pacman's last positions - pacman.directions
-        // Get tri-gram patterns probability - Predict sides/backward direction pacman will go
-
-        // Counters
-        //Only do something after pacman takes 15 steps
-        //Debug.Log("Pressed");
-        //Debug.Log(pacman.directions.Count);
-
+        // When pacman has made 20+ moves
         if (pacman.directions.Count >= 20)
         {
             // Direction Counters for the third step
-            int NNW = 0, NNE = 0, NNS = 0;
-            int EEN = 0, EES = 0, EEW = 0;
-            int SSN = 0, SSE = 0, SSW = 0;
-            int WWN = 0, WWE = 0, WWS = 0;
+            int NNW = 0, NNE = 0, NNS = 0; // North North | WEST | EAST | SOUTH
+            int EEN = 0, EES = 0, EEW = 0; // East East | NORTH | SOUTH | WEST
+            int SSN = 0, SSE = 0, SSW = 0; // South South | NORTH | EAST | WEST
+            int WWN = 0, WWE = 0, WWS = 0; // West West | NORTH | EAST  | SOUTH
 
-            //Scan through the list of pacman's last X directions (pacman.sequence)
-            //Only scan through to 13 to take account of bigram + 1
+            //Scan through the list of pacman's last X directions
             for (int i = 0; i < pacman.directions.Count - 2; i++) {
-                //NN
-                ThirdDirectionCounter(i, ref NNE, ref NNS, ref NNW, 1, 2, 3, 4);
+                // Count++ each side / backward move after a bigram
+                ThirdDirectionCounter(i, ref NNE, ref NNS, ref NNW, 1, 2, 3, 4); //NN
                 /**
                 if (pacman.directions[i] == 1 && pacman.directions[i + 1] == 1) 
                 {
@@ -314,8 +308,7 @@ public class Inky : MonoBehaviour
                     }
                 }
                 */
-                //EE
-                ThirdDirectionCounter(i, ref EEN, ref EES, ref EEW, 2, 1, 3, 4);
+                ThirdDirectionCounter(i, ref EEN, ref EES, ref EEW, 2, 1, 3, 4); //EE
                 /**
                 if (pacman.directions[i] == 2 && pacman.directions[i + 1] == 2)
                 {
@@ -333,8 +326,7 @@ public class Inky : MonoBehaviour
                     }
                 }
                 */
-                //SS
-                ThirdDirectionCounter(i, ref SSN, ref SSE, ref SSW, 3, 1, 2, 4);
+                ThirdDirectionCounter(i, ref SSN, ref SSE, ref SSW, 3, 1, 2, 4); //SS
                 /**
                 if (pacman.directions[i] == 3 && pacman.directions[i + 1] == 3)
                 {
@@ -352,8 +344,7 @@ public class Inky : MonoBehaviour
                     }
                 }
                 */
-                //WW
-                ThirdDirectionCounter(i, ref WWN, ref WWE, ref WWS, 4, 1, 2, 3);
+                ThirdDirectionCounter(i, ref WWN, ref WWE, ref WWS, 4, 1, 2, 3); //WW
                 /**
                 if (pacman.directions[i] == 4 && pacman.directions[i + 1] == 4)
                 {
@@ -373,19 +364,17 @@ public class Inky : MonoBehaviour
                 */
             }
             Debug.Log("North - E: " + NNE + "\tS: " + NNS + "\tW: " + NNW);
-            Debug.Log("East - N: " + EEN + "\t\tS: " + EES + "\tW: " + EEW);
+            Debug.Log("East - N: " + EEN + "\tS: " + EES + "\tW: " + EEW);
             Debug.Log("South - N: " + SSN + "\tE: " + SSE + "\tW: " + SSW);
             Debug.Log("West - N: " + WWN + "\tE: " + WWE + "\tS: " + WWS);
-
-            //int prediction = 0;
-            //Predict the next move based on the last 2
+            // If Pacman's last movement matches any of the bigrams recorded
+            // Predict the next move based on the probabilities
             if (pacman.directions[pacman.directions.Count - 1] == 1 &&
                 pacman.directions[pacman.directions.Count - 2] == 1)
             {
                 //Predict pacman's movement
                 PredictDirection(NNW, NNE, NNS, 2, 3, 4);
             }
-
             else if (pacman.directions[pacman.directions.Count - 1] == 2 &&
                      pacman.directions[pacman.directions.Count - 2] == 2)
             {
@@ -405,7 +394,6 @@ public class Inky : MonoBehaviour
                 PredictDirection(WWS, WWN, WWE, 1, 2, 3);
             }
         }
-
     }
 
     private void PredictDirection(int A, int B, int C, int dir1, int dir2, int dir3)
@@ -576,16 +564,20 @@ public class Inky : MonoBehaviour
 
     private void Frightened()
     {
+        //Check if pacman chase mode is off
         if (pacman.pacman_chase == false)
         {
+            // Switch back to chase
             state = State.Chase;
+            chaseTime = 0.0f;
+            scatterTime = 0.0f;
             turn = false;
         }
-
         // Frightened
         if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT)
         {
-            //second_last_pos_temp = inky_path_count_temp < inky_moves ? second_last_pos : second_last_pos_temp2;
+            // Allow inky to turn back
+            // Run away towards inky's corner
             if (!turn)
             {
                 turn = true;
@@ -598,7 +590,6 @@ public class Inky : MonoBehaviour
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
                 Astar((int)inky_corner_row, (int)inky_corner_col);
             }
-
             //Loops around when he's in his corner, just to make sure he doesn't stay in one spot
             if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col)
             {
@@ -606,14 +597,13 @@ public class Inky : MonoBehaviour
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
                 Astar(6, 20);
             }
-            if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col - 1 || inky_current_row == inky_corner_row + 1 && inky_current_col == inky_corner_col)
+            if (inky_current_row == inky_corner_row && inky_current_col == inky_corner_col - 1 || 
+                inky_current_row == inky_corner_row + 1 && inky_current_col == inky_corner_col)
             {
                 second_last_pos_temp = second_last_pos;
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
                 Astar(6, 20);
             }
-
-
         }
         // Slow down
         inky_speed = 4.0f;
@@ -621,15 +611,18 @@ public class Inky : MonoBehaviour
 
     private void Chase()
     {
+        // Time the chase
         chaseTime += Time.deltaTime;
+        // After 10s, take a break and scatter
         if (chaseTime > 10)
         {
-            breakBool = true;
             chaseTime = 0.0f;
             state = State.Scatter;
         }
+        // If pacman ate a big pellet
         if (pacman.pacman_chase)
         {
+            // Be scared
             state = State.Frightened;
         }
         else
@@ -637,36 +630,36 @@ public class Inky : MonoBehaviour
             // Chase
             if (!movingUP && !movingDOWN && !movingRIGHT && !movingLEFT && inky_path.Count == 0)
             {
+                // Locks previous tile so inky can't turn back
                 second_last_pos_temp = second_last_pos;
                 path2D[second_last_pos_temp.first, second_last_pos_temp.second] = 0;
-
-                //if prediction != 0 
-                //if (prediction = 1 2 3 4 then go that way
                 
+                // After pacman has made 20+ moves start prediction
                 if (pacman.directions.Count >= 20) { 
                     NGramPrediction();
                     inky_ghost.transform.position = new Vector3(inky_dest_col, inky_dest_row, 0.0f);
                     Astar((int)inky_dest_row, (int)inky_dest_col);
                 } else
                 {
-                    //Heads towards pacman if pacman stops in one tile
+                    //If pacman hasn't moved 20+ times, move to the direction in front of pacman
                     Astar((int)pacman.pacman_ahead_row, (int)pacman.pacman_ahead_col);
                 }
                 
             }
             inky_speed = 8.0f;
         }
-        
     }
 
     private void Eaten()
     {
+        // When Inky is at start
         if (inky_current_col == inky_start_col && inky_current_row == inky_start_row)
         {
-            if (jailTime == 0) Debug.Log("Jail time started");
+            // Start the jail time
             jailTime += Time.deltaTime;
             if (jailTime > 5)
             {
+                // Switch back to chase
                 state = State.Chase;
                 inky_speed = 8f;
                 jailTime = 0.0f;

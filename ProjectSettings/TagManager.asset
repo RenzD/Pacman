@@ -16,6 +16,14 @@ TagManager:
   - Pacman5
   - Pacman6
   - Pacman7
+  - Pellet0
+  - Pellet1
+  - Pellet2
+  - Pellet3
+  - Pellet4
+  - Pellet5
+  - Pellet6
+  - Pellet7
   layers:
   - Default
   - TransparentFX

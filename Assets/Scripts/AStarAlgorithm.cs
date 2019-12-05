@@ -9,19 +9,16 @@ public class AStarAlgorithm : MonoBehaviour
     const int ROWS = 29;
     const int COLS = 26;
 
-
+    //Compares and sorts by the F value first, then row and col
     class AstarComparer : IComparer<Astar>
     {
         public int Compare(Astar x, Astar y)
         {
-            //first by age
             int result = x.Fn.CompareTo(y.Fn);
 
-            //then name
             if (result == 0)
                 result = x.row.CompareTo(y.row);
 
-            //a third sort
             if (result == 0)
                 result = x.col.CompareTo(y.col);
 
@@ -40,8 +37,7 @@ public class AStarAlgorithm : MonoBehaviour
 
     struct cell
     {
-        // Row and Column index of its parent 
-        // Note that 0 <= i <= ROW-1 & 0 <= j <= COL-1 
+        // Row and Column index of its parent: 0 <= i <= ROW-1 & 0 <= j <= COL-1 
         public int parent_i;
         public int parent_j;
         // f = g + h 
@@ -50,54 +46,46 @@ public class AStarAlgorithm : MonoBehaviour
         public double h;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    /***
+     * new_path - the stack that will contain the new set of the new path towards the destination
+     * grid - the 2D map array that defines the path for our ghosts (0 = blocked, 1 = unblocked)
+     * src_row & src_col - source tile location in the 2D array
+     * dest_row & dest_col - destination tile location in the 2D array
+     * block_pos - position to be blocked so the ghosts can't u-turn backwards
+     */
+    public void AStarSearch(Stack new_path, int[,] grid, int src_row, int src_col, 
+                            int dest_row, int dest_col, ref Pair<int,int> block_pos)
     {
-
-    }
-    public void aStarSearch(Stack new_path, int[,] grid, int src_row, int src_col, int dest_row, int dest_col, ref Pair<int,int> slp2)
-    {
+        // Sets the row/col of destination to a Pair
         Pair<int, int> src = new Pair<int, int>(src_row, src_col);
-
-        // Destination is the left-most top-most corner 
         Pair<int, int> dest = new Pair<int, int>(dest_row, dest_col);
 
-        // If the source is out of range 
-        if (isValid(src.first, src.second) == false)
+        // Check if the source is out of range 
+        if (IsTileValid(src.first, src.second) == false)
         {
-            Debug.Log("Source is invalid\n");
             return;
         }
-
-        // If the destination is out of range 
-        if (isValid(dest.first, dest.second) == false)
+        // Check if the destination is out of range 
+        if (IsTileValid(dest.first, dest.second) == false)
         {
-            Debug.Log("Destination is invalid\n");
             return;
         }
-
-        // Either the source or the destination is blocked 
-        if (isUnBlocked(grid, src.first, src.second) == false ||
-            isUnBlocked(grid, dest.first, dest.second) == false)
+        // Check if the source or the destination is blocked 
+        if (IsTileUnblocked(grid, src.first, src.second) == false ||
+            IsTileUnblocked(grid, dest.first, dest.second) == false)
         {
-            //Debug.Log("Source or the destination is blocked\n");
             return;
         }
-
         // If the destination cell is the same as source cell 
-        if (isDestination(src.first, src.second, dest) == true)
+        if (IsTileDestination(src.first, src.second, dest) == true)
         {
-            //Debug.Log("We are already at the destination\n");
             return;
         }
 
-        // Create a closed list and initialise it to false which means 
-        // that no cell has been included yet 
-        // This closed list is implemented as a boolean 2D array 
+        // Create a closed list - no cell has been included yet 
         bool[,] closedList = new bool[ROWS, COLS];
 
-        // Declare a 2D array of structure to hold the details 
-        //of that cell 
+        // Declare a 2D array of structure to hold the details of that cell 
         cell[,] cellDetails = new cell[ROWS, COLS];
         int i;
         int j;
@@ -113,7 +101,7 @@ public class AStarAlgorithm : MonoBehaviour
             }
         }
 
-        // Initialising the parameters of the starting node 
+        // The last [i,j] is the starting node, so we initialize it
         i = src.first;
         j = src.second;
         cellDetails[i, j].f = 0.0;
@@ -122,29 +110,20 @@ public class AStarAlgorithm : MonoBehaviour
         cellDetails[i, j].parent_i = i;
         cellDetails[i, j].parent_j = j;
 
-        /*
-	    Create an open list having information as-
-	    <f, <i, j>>
-	    where f = g + h,
-	    and i, j are the row and column index of that cell
-	    Note that 0 <= i <= ROW-1 & 0 <= j <= COL-1
-	    This open list is implenented as a set of pair of pair.*/
-
-        //HashSet<Pair<double, Pair<int, int>>> openList = new HashSet<Pair<double, Pair<int, int>>>();
-        //openList.Add(new Pair<double, Pair<int, int>>(0.0, new Pair<int, int>(i, j)));
-
+        // Create an open list
+        // <f, <i, j>> , where f = g + h
         SortedSet<Astar> openList = new SortedSet<Astar>(new AstarComparer());
+        Astar astar = new Astar();
+        astar.Fn = 0;
+        astar.row = i;
+        astar.col = j;
+        openList.Add(astar);
 
-        Astar astar1 = new Astar();
-        astar1.Fn = 0;
-        astar1.row = i;
-        astar1.col = j;
-        openList.Add(astar1);
-
-        // We set this boolean value as false as initially 
-        // the destination is not reached. 
+        // We set this boolean value as false as initially
         bool foundDest = false;
 
+        // Loop, if we find a path as we scan through the map, 
+        // we will keep adding to the openList
         while (openList.Count != 0)
         {
             Astar p = openList.First();
@@ -156,47 +135,32 @@ public class AStarAlgorithm : MonoBehaviour
 
             double gNew, hNew, fNew;
 
-
-            //----------- 1st Successor (North) ------------ 
-
-            // Only process this cell if this is a valid one 
-            if (isValid(i - 1, j) == true)
+            // Checks North side 
+            if (IsTileValid(i - 1, j) == true)
             {
-                // If the destination cell is the same as the 
-                // current successor 
-                if (isDestination(i - 1, j, dest) == true)
+                // If the successor is already on the closed 
+                // list or if it is blocked, then ignore it. 
+                if (IsTileDestination(i - 1, j, dest) == true)
                 {
                     // Set the Parent of the destination cell 
                     cellDetails[i - 1, j].parent_i = i;
                     cellDetails[i - 1, j].parent_j = j;
-                    ///Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
+                    FindPath(new_path, grid, cellDetails, dest, ref block_pos);
                     foundDest = true;
                     return;
                 }
-                // If the successor is already on the closed 
-                // list or if it is blocked, then ignore it. 
-                // Else do the following 
                 else if (closedList[i - 1, j] == false &&
-                    isUnBlocked(grid, i - 1, j) == true)
+                    IsTileUnblocked(grid, i - 1, j) == true)
                 {
                     gNew = cellDetails[i, j].g + 1.0;
-                    hNew = calculateHValue(i - 1, j, dest);
+                    hNew = CalculateH(i - 1, j, dest);
                     fNew = gNew + hNew;
-
-                    // If it isn’t on the open list, add it to 
-                    // the open list. Make the current square 
-                    // the parent of this square. Record the 
-                    // f, g, and h costs of the square cell 
-                    //			 OR 
-                    // If it is on the open list already, check 
-                    // to see if this path to that square is better, 
-                    // using 'f' cost as the measure. 
+                    // If its not in the open list, then add it, then make it the parent, and save f,g,h
+                    // If it is in the open list, check to see if this path to that square is better, 
+                    // measured by the f value
                     if (cellDetails[i - 1, j].f == double.MaxValue ||
                         cellDetails[i - 1, j].f > fNew)
                     {
-                        //openList.Add(new Pair<double, Pair<int, int>>(fNew, new Pair<int, int>(i - 1, j)));
-
                         Astar newAstar = new Astar();
                         newAstar.Fn = fNew;
                         newAstar.row = i - 1;
@@ -212,20 +176,18 @@ public class AStarAlgorithm : MonoBehaviour
                     }
                 }
             }
-            //----------- 2nd Successor (South) ------------ 
-
-            // Only process this cell if this is a valid one 
-            if (isValid(i + 1, j) == true)
+            // Check for South Side
+            if (IsTileValid(i + 1, j) == true)
             {
-                // If the destination cell is the same as the 
-                // current successor 
-                if (isDestination(i + 1, j, dest) == true)
+                // If the successor is already on the closed 
+                // list or if it is blocked, then ignore it. 
+                if (IsTileDestination(i + 1, j, dest) == true)
                 {
                     // Set the Parent of the destination cell 
                     cellDetails[i + 1, j].parent_i = i;
                     cellDetails[i + 1, j].parent_j = j;
                     //Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
+                    FindPath(new_path, grid, cellDetails, dest, ref block_pos);
                     foundDest = true;
                     return;
                 }
@@ -233,25 +195,18 @@ public class AStarAlgorithm : MonoBehaviour
                 // list or if it is blocked, then ignore it. 
                 // Else do the following 
                 else if (closedList[i + 1, j] == false &&
-                    isUnBlocked(grid, i + 1, j) == true)
+                    IsTileUnblocked(grid, i + 1, j) == true)
                 {
                     gNew = cellDetails[i, j].g + 1.0;
-                    hNew = calculateHValue(i + 1, j, dest);
+                    hNew = CalculateH(i + 1, j, dest);
                     fNew = gNew + hNew;
 
-                    // If it isn’t on the open list, add it to 
-                    // the open list. Make the current square 
-                    // the parent of this square. Record the 
-                    // f, g, and h costs of the square cell 
-                    //			 OR 
-                    // If it is on the open list already, check 
-                    // to see if this path to that square is better, 
-                    // using 'f' cost as the measure. 
+                    // If its not in the open list, then add it, then make it the parent, and save f,g,h
+                    // If it is in the open list, check to see if this path to that square is better, 
+                    // measured by the f value in the Comparer class
                     if (cellDetails[i + 1, j].f == double.MaxValue ||
                         cellDetails[i + 1, j].f > fNew)
                     {
-                        //openList.Add(new Pair<double, Pair<int, int>>(fNew, new Pair<int, int>(i + 1, j)));
-
                         Astar newAstar = new Astar();
                         newAstar.Fn = fNew;
                         newAstar.row = i + 1;
@@ -267,21 +222,18 @@ public class AStarAlgorithm : MonoBehaviour
                     }
                 }
             }
-
-            //----------- 3rd Successor (East) ------------ 
-
-            // Only process this cell if this is a valid one 
-            if (isValid(i, j + 1) == true)
+            // Checks for East side
+            if (IsTileValid(i, j + 1) == true)
             {
-                // If the destination cell is the same as the 
-                // current successor 
-                if (isDestination(i, j + 1, dest) == true)
+                // If the successor is already on the closed 
+                // list or if it is blocked, then ignore it. 
+                if (IsTileDestination(i, j + 1, dest) == true)
                 {
                     // Set the Parent of the destination cell 
                     cellDetails[i, j + 1].parent_i = i;
                     cellDetails[i, j + 1].parent_j = j;
                     //Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
+                    FindPath(new_path, grid, cellDetails, dest, ref block_pos);
                     foundDest = true;
                     return;
                 }
@@ -290,25 +242,18 @@ public class AStarAlgorithm : MonoBehaviour
                 // list or if it is blocked, then ignore it. 
                 // Else do the following 
                 else if (closedList[i, j + 1] == false &&
-                    isUnBlocked(grid, i, j + 1) == true)
+                    IsTileUnblocked(grid, i, j + 1) == true)
                 {
                     gNew = cellDetails[i, j].g + 1.0;
-                    hNew = calculateHValue(i, j + 1, dest);
+                    hNew = CalculateH(i, j + 1, dest);
                     fNew = gNew + hNew;
 
-                    // If it isn’t on the open list, add it to 
-                    // the open list. Make the current square 
-                    // the parent of this square. Record the 
-                    // f, g, and h costs of the square cell 
-                    //			 OR 
-                    // If it is on the open list already, check 
-                    // to see if this path to that square is better, 
-                    // using 'f' cost as the measure. 
+                    // If its not in the open list, then add it, then make it the parent, and save f,g,h
+                    // If it is in the open list, check to see if this path to that square is better, 
+                    // measured by the f value in the Comparer class
                     if (cellDetails[i, j + 1].f == double.MaxValue ||
                         cellDetails[i, j + 1].f > fNew)
                     {
-                        //openList.Add(new Pair<double, Pair<int, int>>(fNew, new Pair<int, int>(i, j + 1)));
-
                         Astar newAstar = new Astar();
                         newAstar.Fn = fNew;
                         newAstar.row = i;
@@ -324,21 +269,18 @@ public class AStarAlgorithm : MonoBehaviour
                     }
                 }
             }
-
-            //----------- 4th Successor (West) ------------ 
-
-            // Only process this cell if this is a valid one 
-            if (isValid(i, j - 1) == true)
+            // Checks for West Side
+            if (IsTileValid(i, j - 1) == true)
             {
-                // If the destination cell is the same as the 
-                // current successor 
-                if (isDestination(i, j - 1, dest) == true)
+                // If the successor is already on the closed 
+                // list or if it is blocked, then ignore it. 
+                if (IsTileDestination(i, j - 1, dest) == true)
                 {
                     // Set the Parent of the destination cell 
                     cellDetails[i, j - 1].parent_i = i;
                     cellDetails[i, j - 1].parent_j = j;
                     //Debug.Log("The destination cell is found\n");
-                    tracePath(new_path, grid, cellDetails, dest, ref slp2);
+                    FindPath(new_path, grid, cellDetails, dest, ref block_pos);
                     foundDest = true;
                     return;
                 }
@@ -347,25 +289,18 @@ public class AStarAlgorithm : MonoBehaviour
                 // list or if it is blocked, then ignore it. 
                 // Else do the following 
                 else if (closedList[i, j - 1] == false &&
-                    isUnBlocked(grid, i, j - 1) == true)
+                    IsTileUnblocked(grid, i, j - 1) == true)
                 {
                     gNew = cellDetails[i, j].g + 1.0;
-                    hNew = calculateHValue(i, j - 1, dest);
+                    hNew = CalculateH(i, j - 1, dest);
                     fNew = gNew + hNew;
 
-                    // If it isn’t on the open list, add it to 
-                    // the open list. Make the current square 
-                    // the parent of this square. Record the 
-                    // f, g, and h costs of the square cell 
-                    //			 OR 
-                    // If it is on the open list already, check 
-                    // to see if this path to that square is better, 
-                    // using 'f' cost as the measure. 
+                    // If its not in the open list, then add it, then make it the parent, and save f,g,h
+                    // If it is in the open list, check to see if this path to that square is better, 
+                    // measured by the f value in the Comparer class
                     if (cellDetails[i, j - 1].f == double.MaxValue ||
                         cellDetails[i, j - 1].f > fNew)
                     {
-                        //openList.Add(new Pair<double, Pair<int, int>>(fNew, new Pair<int, int>(i, j - 1)));
-
                         Astar newAstar = new Astar();
                         newAstar.Fn = fNew;
                         newAstar.row = i;
@@ -383,51 +318,60 @@ public class AStarAlgorithm : MonoBehaviour
             }
         }
 
-
-
         if (foundDest == false)
+        {
             Debug.Log("Failed to find the Destination Cell\n");
-
+        }
         return;
     }
 
-    /**
-     * Returns true if the cell is not blocked else false 
-     */
-    bool isUnBlocked(int[,] grid, int row, int col)
+    // Checks if the Tile is blocked or unblock (0 or 1)
+    bool IsTileUnblocked(int[,] grid, int row, int col)
     {
         if (grid[row, col] == 1)
+        {
             return (true);
+        }
         else
+        {
             return (false);
+        }
     }
 
-    bool isValid(int row, int col)
+    // Check if row,col is within the boundary
+    bool IsTileValid(int row, int col)
     {
-        // Returns true if row number and column number 
-        // is in range 
+        // Returns true if row number and column number is in range 
         return (row >= 0) && (row < ROWS) &&
                (col >= 0) && (col < COLS);
     }
 
-    bool isDestination(int row, int col, Pair<int, int> dest)
+    // Checks if the row,col is the destination
+    bool IsTileDestination(int row, int col, Pair<int, int> dest)
     {
         if (row == dest.first && col == dest.second)
+        {
             return (true);
+        }
         else
+        {
             return (false);
+        }
     }
 
-    // A Utility Function to calculate the 'h' heuristics. 
-    double calculateHValue(int row, int col, Pair<int, int> dest)
+
+    // Gets the h value for the heuristic
+    double CalculateH(int row, int col, Pair<int, int> dest)
     {
-        // Return using the distance formula 
+        // Return using the manhattan distance formula 
         return ((double)Math.Sqrt((row - dest.first) * (row - dest.first)
                               + (col - dest.second) * (col - dest.second)));
     }
 
 
-    void tracePath(Stack new_path, int[,] map, cell[,] cellDetails, Pair<int, int> dest, ref Pair<int, int> slp)
+    // Records the path from start to destination to a Stack, 
+    //push it to the new_path passed in from the ghost scripts
+    void FindPath(Stack new_path, int[,] map, cell[,] cellDetails, Pair<int, int> dest, ref Pair<int, int> block_pos)
     {
         //Debug.Log("\nThe Path is ");
         int row = dest.first;
@@ -437,7 +381,6 @@ public class AStarAlgorithm : MonoBehaviour
         while (!(cellDetails[row, col].parent_i == row
                  && cellDetails[row, col].parent_j == col))
         {
-            //Debug.Log("Inside while loop");
             Path.Push(new Pair<int, int>(row, col));
 
             //New Path
@@ -449,28 +392,10 @@ public class AStarAlgorithm : MonoBehaviour
             col = temp_col;
         }
 
-        //int counter = 0;
         Path.Push(new Pair<int, int>(row, col));
-
-        slp = (Pair<int, int>)Path.Peek();
-        //Debug.Log("Second Last row: " + slp.first + "\tcol" + slp.second);
-
-
-            //map[p.first, p.second] = 0;
-
-            /*
-            while (Path.Count != 0)
-            {
-                Pair<int, int> p = (Pair<int, int>)Path.Peek();
-                Path.Pop();
-
-                //Debug.Log("-> (" + p.first + "," + p.second + ")");
-                //counter++;
-                //Console.Write("-> (" + p.first + "," + p.second + ")");
-            }
-            */
-            //Debug.Log("Path.Count");
-            return;
+        // checking for first node
+        block_pos = (Pair<int, int>)Path.Peek();
+        return;
     }
 
 }
