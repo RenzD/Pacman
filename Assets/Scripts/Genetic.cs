@@ -32,7 +32,7 @@ public class Genetic : MonoBehaviour
     int gen_counter = 1;
     bool once = false;
     bool generationDone = false;
-    double[] fitness;
+    public double[] fitness;
 
     SortedSet<FitnessScore> openList;
 
@@ -206,16 +206,21 @@ public class Genetic : MonoBehaviour
             generationDone = false;
             once = false;
         }
+
         InstantiatePelletPrefab();
     }
 
     private void Selection()
     {
         // Sorts the movements by fitness score
+        // FitnessComparer sorts by highest Fitness first
+        // FitnessScore contains -  (Fitness, Movement Array)
         openList = new SortedSet<FitnessScore>(new FitnessComparer());
         FitnessScore fn;
+
         for (int i = 0; i < pacnums; i++)
         {
+            // Initialize Fitness Score for each pacman to be sorted
             fn = new FitnessScore();
             fn.Fitness = fitness[i];
             fn.MoveArray = moveScript[i].GetMoveArray();
@@ -223,8 +228,7 @@ public class Genetic : MonoBehaviour
             foreach (int x in fn.MoveArray) {
                 str += x.ToString();
             }
-
-            //Converge
+            // Convergence when fitness reaches over 120
             if (fitness[i] > 120)
             {
                 Time.timeScale = 0;
@@ -276,7 +280,7 @@ public class Genetic : MonoBehaviour
         int split1 = 100;
         int split2 = 50;
         int split3 = 25;
-        int split4 = 150;
+        int split4 = 175;
 
         //Mix parents movement[] to create 8 variety of movement[]
         //keep best parent from the previous gen
@@ -299,7 +303,7 @@ public class Genetic : MonoBehaviour
         //25 reverse
         parent_switch = true;
         InheritMovements(ref parent_switch, split3, 6);
-        //13
+        //175
         InheritMovements(ref parent_switch, split4, 7);
         
     }

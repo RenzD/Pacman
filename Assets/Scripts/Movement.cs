@@ -24,7 +24,7 @@ public class Movement : MonoBehaviour
     float pacman_move_col = 0;
     float pacman_current_row = 0;
     float pacman_current_col = 0;
-    float pacman_speed = 10.0f;
+    float pacman_speed = 8.0f;
     float finishTime = 0.0f;
     [NonSerialized]
     public double fitness = 0;
@@ -80,29 +80,36 @@ public class Movement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // If pacman collides with a ghost or the goal
+        // Disable movements and record fitness
         if (other.tag == "Ghost" || other.tag == "BigPellet")
         {
-            if (!once)
+            if (!once) // Only do once
             {
                 once = true;
                 if (other.tag == "Ghost")
                 {
+                    // Record the fitness for this pacman
+                    // The distance of pacman from the goal when he's finished moving (top-right corner)
                     fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
-                    //Debug.Log("Fit: " + fitness);
+                    // Inverts the distance so the higher the fitness the better
                     fitness = 53 - fitness;
+                    // Adds all the eaten pellets
                     fitness += pellets_eaten;
-                    //fitness = Math.Round(Math.Sqrt(fitness), 5);
                 }
                 else if (other.tag == "BigPellet")
                 {
+                    // Max distance fitness value for reaching the goal
                     fitness = 53;
+                    fitness += 20; // Reward for finishing the course
+                    // Adds fitness value for how fast pacman finish the course
                     double time_fitness = 40 - Math.Round((double)finishTime, 2);
-                    fitness += pellets_eaten;
                     fitness += time_fitness;
-                    fitness += 20; //Finish reward
+                    // Adds all the eaten pellets
+                    fitness += pellets_eaten;
                 }
             }
-            movesDone = true;
+            movesDone = true; // After all pacmans moves are done, then we apply GA
             anim.enabled = false;
         }
 
@@ -255,12 +262,11 @@ public class Movement : MonoBehaviour
             if (!movingUP && !movingRIGHT && !movingDOWN && !movingLEFT)
             {
                 index++;
-                if (index >= movement.Length)
+                // After 200 moves then stop updating and record fitness
+                if (index >= movement.Length - 1)
                 {
-
-                    Fitness();
+                    Fitness(); 
                     movesDone = true;
-                    //Debug.Log(finishTime);
                 }
             }
         }
@@ -307,12 +313,15 @@ public class Movement : MonoBehaviour
         pellets_eaten = 0;
         DestroyPellets();
     }
-
+    
+    // Get pacmans movement array
     public int[] GetMoveArray()
     {
         return movement;
     }
 
+    // This function is called to Destroy all pellets found
+    // When starting a new generation to reset the board
     public void DestroyPellets()
     {
         for (int i = 0; i < 8; i++)
@@ -322,6 +331,5 @@ public class Movement : MonoBehaviour
                 Destroy(pellet);
             }
         }
-        
     }
 }

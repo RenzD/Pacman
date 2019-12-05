@@ -55,7 +55,6 @@ public class Pinky : MonoBehaviour
     int move_counter;
     int pinky_moves = 1; //every x moves pinky a*
 
-    int decision = 0;
     Actions pinky_action = Actions.Chase;
 
     public enum Actions
