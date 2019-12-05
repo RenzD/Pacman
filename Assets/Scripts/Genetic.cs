@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Genetic : MonoBehaviour
@@ -121,6 +122,12 @@ public class Genetic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SceneManager.LoadScene(1);
+            Time.timeScale = 5;
+        }
+
         // Check if the current generation of pacmans 
         if (!generationDone)
         {
@@ -216,6 +223,13 @@ public class Genetic : MonoBehaviour
             foreach (int x in fn.MoveArray) {
                 str += x.ToString();
             }
+
+            //Converge
+            if (fitness[i] > 120)
+            {
+                Time.timeScale = 0;
+            }
+
             //Debug.Log("Fitness " + i + ": " + fitness[i]);
             //Debug.Log(str);
             // Add pacman fitness-movement to the list
