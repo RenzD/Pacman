@@ -1125,7 +1125,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -1509,18 +1509,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pacman
       objectReference: {fileID: 0}
-    - target: {fileID: 1880952298, guid: b578e8255e4bc424fad9abb9f8423639, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1880952298, guid: b578e8255e4bc424fad9abb9f8423639, type: 3}
-      propertyPath: m_Size.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1880952298, guid: b578e8255e4bc424fad9abb9f8423639, type: 3}
-      propertyPath: m_Size.y
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 7401211270459727367, guid: b578e8255e4bc424fad9abb9f8423639,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1575,6 +1563,18 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1880952298, guid: b578e8255e4bc424fad9abb9f8423639, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1880952298, guid: b578e8255e4bc424fad9abb9f8423639, type: 3}
+      propertyPath: m_Size.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1880952298, guid: b578e8255e4bc424fad9abb9f8423639, type: 3}
+      propertyPath: m_Size.y
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}

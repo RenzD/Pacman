@@ -116,63 +116,7 @@ public class Blinky : MonoBehaviour
 
     }
 
-    void UpdateAnimatorController()
-    {
-        if (state == State.Chase)
-        {
-            if (movingUP)
-            {
-                transform.GetComponent<Animator>().runtimeAnimatorController = ghostUp;
-            }
-            else if (movingRIGHT)
-            {
-
-                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
-            }
-            else if (movingDOWN)
-            {
-
-                transform.GetComponent<Animator>().runtimeAnimatorController = ghostDown;
-            }
-            else if (movingLEFT)
-            {
-
-                transform.GetComponent<Animator>().runtimeAnimatorController = ghostLeft;
-            }
-            else
-            {
-                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
-            }
-            
-        } 
-        else if (state == State.Frightened)
-        {
-            transform.GetComponent<Animator>().runtimeAnimatorController = scared;
-        } 
-        else if (state == State.Eaten)
-        {
-            transform.GetComponent<Animator>().runtimeAnimatorController = null;
-            if (movingUP)
-            {
-                transform.GetComponent<SpriteRenderer>().sprite = eyesUp;
-            }
-            else if (movingRIGHT)
-            {
-                transform.GetComponent<SpriteRenderer>().sprite = eyesRight;
-            }
-            else if (movingDOWN)
-            {
-                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
-            }
-            else if (movingLEFT)
-            {
-                transform.GetComponent<SpriteRenderer>().sprite = eyesLeft;
-            } else
-            {
-                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
-            }
-        }
-    }
+    
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -186,7 +130,6 @@ public class Blinky : MonoBehaviour
             }
         }
     }
-
 
     private void Astar(int dest_row, int dest_col)
     {
@@ -221,7 +164,6 @@ public class Blinky : MonoBehaviour
                 Debug.Log("Unknown state");
                 break;
         }
-        
         MoveGhost();
     }
 
@@ -369,6 +311,7 @@ public class Blinky : MonoBehaviour
                                   && !movingLEFT && !movingRIGHT)
         {
             move_counter++;
+            // Get the next tile row/col
             pair = (Pair<int, int>)blinky_path.Peek();
             blinky_path.Pop();
             
@@ -437,6 +380,64 @@ public class Blinky : MonoBehaviour
                 blinky_current_col = pair.second;
                 blinky_move_col = pair.second;
                 movingRIGHT = false;
+            }
+        }
+    }
+    void UpdateAnimatorController()
+    {
+        if (state == State.Chase)
+        {
+            if (movingUP)
+            {
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostUp;
+            }
+            else if (movingRIGHT)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
+            }
+            else if (movingDOWN)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostDown;
+            }
+            else if (movingLEFT)
+            {
+
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostLeft;
+            }
+            else
+            {
+                transform.GetComponent<Animator>().runtimeAnimatorController = ghostRight;
+            }
+
+        }
+        else if (state == State.Frightened)
+        {
+            transform.GetComponent<Animator>().runtimeAnimatorController = scared;
+        }
+        else if (state == State.Eaten)
+        {
+            transform.GetComponent<Animator>().runtimeAnimatorController = null;
+            if (movingUP)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesUp;
+            }
+            else if (movingRIGHT)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesRight;
+            }
+            else if (movingDOWN)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
+            }
+            else if (movingLEFT)
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesLeft;
+            }
+            else
+            {
+                transform.GetComponent<SpriteRenderer>().sprite = eyesDown;
             }
         }
     }

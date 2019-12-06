@@ -1,12 +1,14 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
-    - AStarAlgorithm
-    - Blinky
-    - Board
-    - Inky
-    - PacMan
-    - Pinky
+    - Genetic
+    - Movement
+    UnityEditor.Graphs.dll:
+    - UnityEditor.Graphs.AnimationBlendTree.Graph
+    - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.Graph
+    - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
     - UnityEditor.TestTools.TestRunner.TestListCacheData
@@ -17,7 +19,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.GraphicRaycaster
     - UnityEngine.UI.Text
   sceneClasses:
-    Assets/Scenes/Pacman.unity:
+    Assets/Scenes/GA.unity:
     - Class: 1
       Script: {instanceID: 0}
     - Class: 4
@@ -30,9 +32,9 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
-    - Class: 54
+    - Class: 50
       Script: {instanceID: 0}
-    - Class: 65
+    - Class: 61
       Script: {instanceID: 0}
     - Class: 74
       Script: {instanceID: 0}
@@ -45,27 +47,19 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 9672}
-    - Class: 114
       Script: {instanceID: 9676}
+    - Class: 114
+      Script: {instanceID: 9716}
     - Class: 114
       Script: {instanceID: 9826}
     - Class: 114
-      Script: {instanceID: 9902}
-    - Class: 114
-      Script: {instanceID: 10200}
-    - Class: 114
       Script: {instanceID: 10236}
     - Class: 114
-      Script: {instanceID: 10592}
-    - Class: 114
-      Script: {instanceID: 10980}
+      Script: {instanceID: 10946}
     - Class: 114
       Script: {instanceID: 11016}
     - Class: 114
-      Script: {instanceID: 11234}
-    - Class: 114
-      Script: {instanceID: 11360}
+      Script: {instanceID: 11358}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -85,7 +79,7 @@ ScriptsOnlyBuild:
   scriptHashData:
   - hash:
       serializedVersion: 2
-      Hash: 3d811ef8d227ef2096549bd9764b7e09
+      Hash: 814345c6bb999dcd30a7dead9f3d9b0f
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Pinky
@@ -109,7 +103,7 @@ ScriptsOnlyBuild:
     className: AudioPlayableAsset
   - hash:
       serializedVersion: 2
-      Hash: 0f5203d37325874441cd6567b7e7e722
+      Hash: 34dd7b8eca7613a2159da93be41dee67
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Genetic
@@ -181,7 +175,7 @@ ScriptsOnlyBuild:
     className: TMP_InputField
   - hash:
       serializedVersion: 2
-      Hash: 940887be544a2881b659b12ad7f34330
+      Hash: 1b45d2cf3c3ba3e391cd0de9c44ac02a
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Blinky
@@ -403,7 +397,7 @@ ScriptsOnlyBuild:
     className: TimelineAsset
   - hash:
       serializedVersion: 2
-      Hash: c7fc8d20a030d7f059a5b772c89fbe78
+      Hash: 2c2c9a5dd1247ae728d59fe75d076cd5
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Movement
@@ -415,7 +409,7 @@ ScriptsOnlyBuild:
     className: TextMeshProUGUI
   - hash:
       serializedVersion: 2
-      Hash: 3025a45ea6ebe71738b7b0b444f785e8
+      Hash: c112f4fc2ebd75cc8d1a5e7fa9c3e1ff
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Inky
@@ -451,7 +445,7 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: 90279dd3d7cc68ebd29011a03a58803e
+      Hash: c25ffc94bbb342b976e4cd28e714ccc1
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PacMan
@@ -511,12 +505,6 @@ ScriptsOnlyBuild:
     className: Dropdown
   - hash:
       serializedVersion: 2
-      Hash: a9194bca1828084bbb77274060397c12
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: Node
-  - hash:
-      serializedVersion: 2
       Hash: 748dd2a2a28da4e618912da5ac45684b
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
@@ -553,5 +541,5 @@ ScriptsOnlyBuild:
     className: PlayableTrack
   platform: 19
   scenePathNames:
-  - Assets/Scenes/Pacman.unity
-  playerPath: C:/Users/renzd/Desktop/AI Project/Build/Pacman.exe
+  - Assets/Scenes/GA.unity
+  playerPath: C:/Users/renzd/Desktop/AI Project/GeneticBuild/Pacman.exe

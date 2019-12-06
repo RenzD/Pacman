@@ -24,7 +24,7 @@ public class Movement : MonoBehaviour
     float pacman_move_col = 0;
     float pacman_current_row = 0;
     float pacman_current_col = 0;
-    float pacman_speed = 8.0f;
+    float pacman_speed = 50.0f;
     float finishTime = 0.0f;
     [NonSerialized]
     public double fitness = 0;
@@ -72,7 +72,7 @@ public class Movement : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         finishTime += Time.deltaTime;
         MovePacman();
@@ -87,17 +87,11 @@ public class Movement : MonoBehaviour
             if (!once) // Only do once
             {
                 once = true;
-                if (other.tag == "Ghost")
+                if (other.tag == "Ghost") // Stopping obstacle
                 {
-                    // Record the fitness for this pacman
-                    // The distance of pacman from the goal when he's finished moving (top-right corner)
-                    fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
-                    // Inverts the distance so the higher the fitness the better
-                    fitness = 53 - fitness;
-                    // Adds all the eaten pellets
-                    fitness += pellets_eaten;
+                    Fitness();
                 }
-                else if (other.tag == "BigPellet")
+                else if (other.tag == "BigPellet") // Goal reached
                 {
                     // Max distance fitness value for reaching the goal
                     fitness = 53;
@@ -120,27 +114,23 @@ public class Movement : MonoBehaviour
             //Debug.Log("Eating");
         }
     }
-
+    public void Fitness()
+    {
+        // Record the fitness for this pacman
+        // The distance of pacman from the goal when he's finished moving (top-right corner)
+        fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
+        // Inverts the distance so the higher the fitness the better
+        fitness = 53 - fitness;
+        // Adds all the eaten pellets
+        fitness += pellets_eaten;
+    }
 
     public void SetPelletTag(string pTag) 
     {
         pellet_tag = pTag;
     }
 
-    public void Fitness()
-    {
-        if (!once)
-        {
-            once = true;
-            fitness = ((ROWS - 1) - pacman_current_row) + ((COLS - 1) - pacman_current_col);
-            fitness = 53 - fitness;
-            fitness += pellets_eaten;
-            
-            //Debug.Log("Fit: " + fitness);
-            //fitness = Math.Round(Math.Sqrt(fitness), 5);
-            //Debug.Log("Fitness: " + fitness);
-        }
-    }
+    
 
     private void MovePacman()
     {
@@ -265,7 +255,11 @@ public class Movement : MonoBehaviour
                 // After 200 moves then stop updating and record fitness
                 if (index >= movement.Length - 1)
                 {
-                    Fitness(); 
+                    if (!once)
+                    {
+                        once = true; 
+                        Fitness();
+                    }
                     movesDone = true;
                 }
             }
@@ -331,5 +325,10 @@ public class Movement : MonoBehaviour
                 Destroy(pellet);
             }
         }
+    }
+
+    public double GetFitness()
+    {
+        return fitness;
     }
 }

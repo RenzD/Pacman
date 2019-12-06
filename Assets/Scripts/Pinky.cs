@@ -139,7 +139,6 @@ public class Pinky : MonoBehaviour
             // Check powerBranch
             Negative = powerBranch 
         };
-
         return trunk;
     }
 
@@ -223,6 +222,7 @@ public class Pinky : MonoBehaviour
             PacmanChase = pacman.pacman_chase,
             BreakTime = breakBool
         };
+
         // Evaluates the pinky's current situation, then makes a decision
         trunk.Evaluate(pinky, ref pinky_action);
         // Choose the action based on the evaluated decision
